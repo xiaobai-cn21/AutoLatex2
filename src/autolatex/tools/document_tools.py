@@ -1,4 +1,31 @@
-from crewai_tools import BaseTool
+import json
+import os
+from typing import Any, Dict
+
+try:
+    from crewai_tools import BaseTool  # type: ignore
+except ImportError:  # pragma: no cover
+    class BaseTool:  # type: ignore
+        """Fallback BaseTool 用于本地测试。"""
+
+        name: str = ""
+        description: str = ""
+
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def _run(self, *args, **kwargs):
+            raise NotImplementedError("BaseTool fallback does not implement _run.")
+
+try:
+    from .docx_parser import parse_docx_to_json
+    from .schema_validator import load_document_schema, validate_parsed_document
+except ImportError:  # pragma: no cover
+    from docx_parser import parse_docx_to_json  # type: ignore
+    from schema_validator import (  # type: ignore
+        load_document_schema,
+        validate_parsed_document,
+    )
 
 # ------------------- 接口定义 -------------------
 
@@ -7,19 +34,22 @@ class DocumentParserTool(BaseTool):
     description: str = "解析 Word, Markdown, 或 Txt 文件，返回其结构化的 JSON 内容。"
 
     def _run(self, file_path: str) -> str:
-        # 这是 B 同学需要实现的部分
-        # 1. 根据文件扩展名选择合适的解析器
-        # 2. 解析文件
-        # 3. 生成一个严格符合团队定义的 JSON Schema 的 Python 字典
-        # 4. 将字典转换为 JSON 字符串并返回
-        
-        # 示例实现:
-        # parsed_dict = parse_document_logic(file_path) # B 同学的核心逻辑
-        # return json.dumps(parsed_dict, ensure_ascii=False)
-        
-        # 在 B 同学完成前，先用一个假数据来测试
-        print(f"--- [工具模拟] 正在解析文档: {file_path} ---")
-        return '{"metadata": {"title": "模拟标题"}, "content": [{"type": "paragraph", "text": "这是一个模拟段落。"}]}'
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"文件不存在: {file_path}")
+
+        _, ext = os.path.splitext(file_path)
+        ext = ext.lower()
+        if ext != ".docx":
+            raise NotImplementedError("当前版本仅支持 .docx 文件解析。")
+
+        parsed_dict: Dict[str, Any] = parse_docx_to_json(file_path)
+
+        schema = load_document_schema()
+        is_valid = validate_parsed_document(parsed_dict, schema)
+        if not is_valid:
+            raise ValueError("解析结果未能通过 Schema 验证，请检查文档结构。")
+
+        return json.dumps(parsed_dict, ensure_ascii=False)
 
 
 class LaTeXCompilerTool(BaseTool):
@@ -37,4 +67,4 @@ class LaTeXCompilerTool(BaseTool):
         # 示例实现:
         print(f"--- [工具模拟] 正在编译: {latex_file_path} ---")
         # 模拟编译失败的情况
-        return "编译错误: ! Undefined control sequence. l.15 \includegraphics"
+        return "编译错误: ! Undefined control sequence. l.15 \\includegraphics"
