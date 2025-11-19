@@ -19,9 +19,11 @@ except ImportError:  # pragma: no cover
 
 try:
     from .docx_parser import parse_docx_to_json
+    from .md_parser import parse_md_to_json
     from .schema_validator import load_document_schema, validate_parsed_document
 except ImportError:  # pragma: no cover
     from docx_parser import parse_docx_to_json  # type: ignore
+    from md_parser import parse_md_to_json  # type: ignore
     from schema_validator import (  # type: ignore
         load_document_schema,
         validate_parsed_document,
@@ -39,10 +41,13 @@ class DocumentParserTool(BaseTool):
 
         _, ext = os.path.splitext(file_path)
         ext = ext.lower()
-        if ext != ".docx":
-            raise NotImplementedError("当前版本仅支持 .docx 文件解析。")
 
-        parsed_dict: Dict[str, Any] = parse_docx_to_json(file_path)
+        if ext == ".docx":
+            parsed_dict: Dict[str, Any] = parse_docx_to_json(file_path)
+        elif ext == ".md":
+            parsed_dict = parse_md_to_json(file_path)
+        else:
+            raise NotImplementedError(f"当前版本暂不支持 {ext} 文件解析。")
 
         schema = load_document_schema()
         is_valid = validate_parsed_document(parsed_dict, schema)
