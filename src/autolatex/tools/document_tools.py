@@ -21,6 +21,7 @@ try:
     from .docx_parser import parse_docx_to_json
     from .md_parser import parse_md_to_json
     from .schema_validator import load_document_schema, validate_parsed_document
+    from .txt_parser import parse_txt_to_json
 except ImportError:  # pragma: no cover
     from docx_parser import parse_docx_to_json  # type: ignore
     from md_parser import parse_md_to_json  # type: ignore
@@ -28,6 +29,7 @@ except ImportError:  # pragma: no cover
         load_document_schema,
         validate_parsed_document,
     )
+    from txt_parser import parse_txt_to_json  # type: ignore
 
 # ------------------- 接口定义 -------------------
 
@@ -46,6 +48,8 @@ class DocumentParserTool(BaseTool):
             parsed_dict: Dict[str, Any] = parse_docx_to_json(file_path)
         elif ext == ".md":
             parsed_dict = parse_md_to_json(file_path)
+        elif ext == ".txt":
+            parsed_dict = parse_txt_to_json(file_path)
         else:
             raise NotImplementedError(f"当前版本暂不支持 {ext} 文件解析。")
 

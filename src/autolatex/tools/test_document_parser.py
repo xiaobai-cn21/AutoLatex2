@@ -12,6 +12,7 @@ from schema_validator import load_document_schema, validate_parsed_document
 BASE_DIR = os.path.dirname(__file__)
 DOCX_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "docx_samples"))
 MD_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "md_samples"))
+TXT_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "txt_samples"))
 IMAGES_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "parsed_images"))
 
 
@@ -69,6 +70,20 @@ def run_md_tests() -> Dict[str, bool]:
     return results
 
 
+def run_txt_tests() -> Dict[str, bool]:
+    results: Dict[str, bool] = {}
+    txt_cases = ["sample_paper_full.txt", "sample_paper_min.txt"]
+    for case in txt_cases:
+        file_path = os.path.join(TXT_TEST_DIR, case)
+        print(f"\n--- Running TXT test for: {case} ---")
+        if not os.path.exists(file_path):
+            print(f"Test file not found: {file_path}")
+            results[case] = False
+            continue
+        results[case] = run_file_test(file_path)
+    return results
+
+
 def ensure_dirs() -> None:
     if not os.path.exists(IMAGES_DIR):
         os.makedirs(IMAGES_DIR, exist_ok=True)
@@ -80,6 +95,7 @@ def main() -> None:
 
     docx_results = run_docx_tests()
     md_results = run_md_tests()
+    txt_results = run_txt_tests()
 
     print("\n--- DOCX Test Summary ---")
     for name, passed in docx_results.items():
@@ -89,7 +105,11 @@ def main() -> None:
     for name, passed in md_results.items():
         print(f"{name}: {'PASSED' if passed else 'FAILED'}")
 
-    overall = all(docx_results.values()) and all(md_results.values())
+    print("\n--- TXT Test Summary ---")
+    for name, passed in txt_results.items():
+        print(f"{name}: {'PASSED' if passed else 'FAILED'}")
+
+    overall = all(docx_results.values()) and all(md_results.values()) and all(txt_results.values())
     print(f"\nOverall Test Result: {'ALL PASSED' if overall else 'SOME FAILED'}")
 
 

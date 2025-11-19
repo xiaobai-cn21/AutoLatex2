@@ -210,11 +210,35 @@ def _parse_bibliography_from_md(md_text: str) -> List[Dict[str, Any]]:
     return bibliography
 
 
+def _split_keywords_text(text: str) -> List[str]:
+    return [kw.strip() for kw in re.split(r"[,\n，、;；]", text) if kw.strip()]
+
+
+def _extract_keywords_from_body(md_text: str) -> List[str]:
+    heading_pattern = re.compile(r"^#+\s*(keywords|关键词)\s*$", re.IGNORECASE | re.MULTILINE)
+    match = heading_pattern.search(md_text)
+    if match:
+        section_start = match.end()
+        following = md_text[section_start:]
+        next_heading = re.search(r"^#+\s", following, re.MULTILINE)
+        keywords_block = following[: next_heading.start()].strip() if next_heading else following.strip()
+        if keywords_block:
+            return _split_keywords_text(keywords_block)
+
+    inline_pattern = re.compile(r"(?:Keywords|关键词)\s*[:：]\s*(.+)")
+    inline_match = inline_pattern.search(md_text)
+    if inline_match:
+        return _split_keywords_text(inline_match.group(1))
+    return []
+
+
 def parse_md_to_json(file_path: str) -> Dict[str, Any]:
     with open(file_path, "r", encoding="utf-8") as md_file:
         md_text = md_file.read()
 
     metadata, remaining_md = _parse_metadata_from_md(md_text)
+    if not metadata["keywords"]:
+        metadata["keywords"] = _extract_keywords_from_body(remaining_md)
     content_md, bibliography_md = _split_content_and_bibliography(remaining_md)
 
     parsed_data: Dict[str, Any] = {
