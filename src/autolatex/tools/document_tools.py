@@ -77,3 +77,35 @@ class LaTeXCompilerTool(BaseTool):
         print(f"--- [工具模拟] 正在编译: {latex_file_path} ---")
         # 模拟编译失败的情况
         return "编译错误: ! Undefined control sequence. l.15 \\includegraphics"
+
+
+def parse_document(file_path: str) -> Dict[str, Any]:
+    """
+    一个可以直接调用的文档解析函数。(已修正以处理验证器的返回值)
+
+    它会根据文件扩展名自动选择合适的解析器，
+    执行解析，验证结果，并返回一个结构化的Python字典。
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"文件不存在: {file_path}")
+
+    _, ext = os.path.splitext(file_path)
+    ext = ext.lower()
+
+    parsed_dict: Dict[str, Any]
+    if ext == ".docx":
+        parsed_dict = parse_docx_to_json(file_path)
+    elif ext == ".md":
+        parsed_dict = parse_md_to_json(file_path)
+    elif ext == ".txt":
+        parsed_dict = parse_txt_to_json(file_path)
+    else:
+        raise NotImplementedError(f"当前版本暂不支持 {ext} 文件解析。")
+
+    schema = load_document_schema()
+    is_valid = validate_parsed_document(parsed_dict, schema) # <-- 不再解包
+
+    if not is_valid:
+        raise ValueError("解析结果未能通过 Schema 验证。请检查文档内容或 schema_validator.py 的逻辑。")
+
+    return parsed_dict
