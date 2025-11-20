@@ -18,7 +18,7 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs',
+        'topic': '自动将word、txt、markdown格式论文转化为Latex格式论文',
         'current_year': str(datetime.now().year)
     }
 
