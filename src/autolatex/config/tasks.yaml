@@ -55,7 +55,7 @@ latex_generation_task:
     - 确保所有的宏包引用完整，且图片路径正确。
   expected_output: >
     一段完整、可直接用于编译的 .tex 源代码字符串。
-    代码必须以 \documentclass 开头，以 \end{document} 结尾，格式规范。
+    代码必须包含标准的 LaTeX 文档开始和结束标记。
   agent: latex_coder_agent
 
 # 任务4：调试专家的任务 - 编译与闭环修复

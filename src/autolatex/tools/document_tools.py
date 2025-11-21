@@ -2,20 +2,20 @@ import json
 import os
 from typing import Any, Dict
 
-try:
-    from crewai_tools import BaseTool  # type: ignore
-except ImportError:  # pragma: no cover
-    class BaseTool:  # type: ignore
-        """Fallback BaseTool 用于本地测试。"""
+# try:
+from crewai.tools import BaseTool  # type: ignore
+# except ImportError:  # pragma: no cover
+#     class BaseTool:  # type: ignore
+#         """Fallback BaseTool 用于本地测试。"""
 
-        name: str = ""
-        description: str = ""
+#         name: str = ""
+#         description: str = ""
 
-        def __init__(self, *args, **kwargs):
-            pass
+#         def __init__(self, *args, **kwargs):
+#             pass
 
-        def _run(self, *args, **kwargs):
-            raise NotImplementedError("BaseTool fallback does not implement _run.")
+#         def _run(self, *args, **kwargs):
+#             raise NotImplementedError("BaseTool fallback does not implement _run.")
 
 try:
     from .docx_parser import parse_docx_to_json
@@ -66,7 +66,7 @@ class DocumentParserTool(BaseTool):
 class LaTeXCompilerTool(BaseTool):
     name: str = "LaTeX Compiler and Debugger Tool"
     description: str = "编译一个 .tex 文件。如果成功，返回 PDF 路径；如果失败，返回完整的编译错误日志。"
-
+      
     def _run(self, latex_content: str, journal_template_files_json: str = "{}") -> str:
         try:
             templates = json.loads(journal_template_files_json)

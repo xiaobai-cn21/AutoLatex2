@@ -3,6 +3,7 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 from .model import DocumentStructure, EquationList 
+from autolatex.tools.document_tools import DocumentParserTool
 
 @CrewBase
 class Autolatex():
@@ -10,6 +11,9 @@ class Autolatex():
 
     agents: List[BaseAgent]
     tasks: List[Task]
+     # 实例化工具 (也可以在 agent 方法内部实例化，看个人喜好)
+    doc_parsing_tool = DocumentParserTool()
+    
 
     #-------------------Agent定义-------------------
 
@@ -20,7 +24,7 @@ class Autolatex():
             config=self.agents_config['doc_parser_agent'],
             verbose=True,
             # 提示：这里未来需要加读取文件的工具，例如：
-            # tools=[FileReadTool(), JSONSearchTool()] 
+            tools=[DocumentParserTool()] 
         )
 
     # --- 2. 模版研究 Agent ---

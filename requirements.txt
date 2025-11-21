@@ -1,0 +1,11 @@
+# requirements.txt
+
+crewai
+crewai-tools
+langchain-openai
+python-dotenv
+
+# --- 添加以下这些用于文档解析的依赖 ---
+Markdown
+python-docx
+# 如果您还用到了其他库，比如处理 txt 的，也一并添加
