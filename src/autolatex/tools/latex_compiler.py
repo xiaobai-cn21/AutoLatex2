@@ -1,0 +1,140 @@
+"""封装 LaTeX 编译逻辑，支持 Docker 沙盒与本地回退。"""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+LATEX_TIMEOUT = int(os.getenv("AUTOTEX_LATEX_TIMEOUT", "120"))
+DOCKER_IMAGE = os.getenv("AUTOTEX_LATEX_IMAGE", "autotex-latex-compiler")
+USE_DOCKER = os.getenv("AUTOTEX_LATEX_USE_DOCKER", "1") not in {"0", "false", "False"}
+LATEX_CMD = os.getenv("AUTOTEX_LATEX_CMD", "xelatex")
+BIB_CMD = os.getenv("AUTOTEX_BIB_CMD", "bibtex")
+
+
+@dataclass
+class CompileResult:
+    success: bool
+    pdf_path: Optional[str] = None
+    temp_dir: Optional[str] = None
+    error_log: Optional[str] = None
+
+
+def _command_exists(command: str) -> bool:
+    return shutil.which(command) is not None
+
+
+def _setup_compile_env(
+    latex_content: str, journal_template_files: Dict[str, str]
+) -> str:
+    temp_dir = tempfile.mkdtemp(prefix="autotex_latex_compile_")
+    main_tex_path = os.path.join(temp_dir, "main.tex")
+    with open(main_tex_path, "w", encoding="utf-8") as tex_file:
+        tex_file.write(latex_content)
+
+    for filename, content in (journal_template_files or {}).items():
+        file_path = os.path.join(temp_dir, filename)
+        with open(file_path, "w", encoding="utf-8") as template_file:
+            template_file.write(content)
+
+    return temp_dir
+
+
+def _needs_bibliography(latex_content: str) -> bool:
+    return any(
+        marker in latex_content
+        for marker in ["\\bibliography{", "\\addbibresource", "\\printbibliography"]
+    )
+
+
+def _docker_command(host_dir: str, inner_command: List[str]) -> List[str]:
+    container_dir = "/home/latexuser/compile_env"
+    return [
+        "docker",
+        "run",
+        "--rm",
+        "--network=none",
+        "--memory=1g",
+        "--cpu-shares=512",
+        "-v",
+        f"{host_dir}:{container_dir}:rw",
+        "-w",
+        container_dir,
+        DOCKER_IMAGE,
+        *inner_command,
+    ]
+
+
+def _local_command(command: List[str]) -> List[str]:
+    return command
+
+
+def _run_command(command: List[str], cwd: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        command,
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=LATEX_TIMEOUT,
+        check=False,
+    )
+
+
+def _invoke_latex(command: List[str], temp_dir: str) -> subprocess.CompletedProcess:
+    if USE_DOCKER:
+        if not _command_exists("docker"):
+            raise RuntimeError("Docker 未安装或不可用，无法使用沙盒进行编译。")
+        exec_command = _docker_command(temp_dir, command)
+    else:
+        if not _command_exists(command[0]):
+            raise RuntimeError(f"找不到命令 {command[0]}，请安装 TeX Live 或启用 Docker。")
+        exec_command = _local_command(command)
+    return _run_command(exec_command, temp_dir if not USE_DOCKER else None)
+
+
+def compile_latex_to_pdf(
+    latex_content: str, journal_template_files: Optional[Dict[str, str]] = None
+) -> CompileResult:
+    temp_dir: Optional[str] = None
+    try:
+        temp_dir = _setup_compile_env(latex_content, journal_template_files or {})
+        main_basename = "main.tex"
+        latex_command = [LATEX_CMD, "-interaction=nonstopmode", "-halt-on-error", main_basename]
+
+        # Run LaTeX up to three times for refs
+        for _ in range(2):
+            result = _invoke_latex(latex_command, temp_dir)
+            if result.returncode != 0:
+                return CompileResult(False, error_log=result.stdout + result.stderr)
+
+        if _needs_bibliography(latex_content):
+            bib_command = [BIB_CMD, "main"]
+            bib_result = _invoke_latex(bib_command, temp_dir)
+            if bib_result.returncode != 0:
+                return CompileResult(False, error_log=bib_result.stdout + bib_result.stderr)
+
+        final_result = _invoke_latex(latex_command, temp_dir)
+        if final_result.returncode != 0:
+            return CompileResult(False, error_log=final_result.stdout + final_result.stderr)
+
+        pdf_path = os.path.join(temp_dir, "main.pdf")
+        if not os.path.exists(pdf_path):
+            return CompileResult(False, error_log="LaTeX 编译完成但未生成 PDF。")
+
+        return CompileResult(True, pdf_path=pdf_path, temp_dir=temp_dir)
+    except subprocess.TimeoutExpired:
+        return CompileResult(False, error_log="LaTeX 编译超时。")
+    except Exception as exc:  # pylint: disable=broad-except
+        return CompileResult(False, error_log=f"LaTeX 编译失败: {exc}")
+
+
+def cleanup_temp_dir(temp_dir: str) -> None:
+    if temp_dir and os.path.isdir(temp_dir):
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
