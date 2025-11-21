@@ -1,5 +1,6 @@
 # 目前更新
-在output.txt存入第一次运行结果
+在output_log.txt存入第一次运行结果
+
 在output文件夹中存放生成的Latex文档
 
 
