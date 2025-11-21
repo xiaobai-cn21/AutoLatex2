@@ -19,11 +19,13 @@ from crewai.tools import BaseTool  # type: ignore
 
 try:
     from .docx_parser import parse_docx_to_json
+    from .latex_compiler import compile_latex_to_pdf, cleanup_temp_dir
     from .md_parser import parse_md_to_json
     from .schema_validator import load_document_schema, validate_parsed_document
     from .txt_parser import parse_txt_to_json
 except ImportError:  # pragma: no cover
     from docx_parser import parse_docx_to_json  # type: ignore
+    from latex_compiler import compile_latex_to_pdf, cleanup_temp_dir  # type: ignore
     from md_parser import parse_md_to_json  # type: ignore
     from schema_validator import (  # type: ignore
         load_document_schema,
@@ -64,48 +66,25 @@ class DocumentParserTool(BaseTool):
 class LaTeXCompilerTool(BaseTool):
     name: str = "LaTeX Compiler and Debugger Tool"
     description: str = "编译一个 .tex 文件。如果成功，返回 PDF 路径；如果失败，返回完整的编译错误日志。"
+      
+    def _run(self, latex_content: str, journal_template_files_json: str = "{}") -> str:
+        try:
+            templates = json.loads(journal_template_files_json)
+        except json.JSONDecodeError as exc:
+            raise ValueError("journal_template_files_json 不是有效的 JSON 字符串。") from exc
 
-    def _run(self, latex_file_path: str) -> str:
-        # 这是 B 同学需要实现的部分
-        # 1. 准备一个安全的 Docker 沙箱环境
-        # 2. 将 latex_file_path 和相关模板文件挂载到容器中
-        # 3. 在容器内执行 pdflatex 或 xelatex 命令
-        # 4. 检查返回值。如果成功 (返回码 0)，找到 .pdf 文件并返回其路径
-        # 5. 如果失败，读取 .log 文件的内容并返回
-        
-        # 示例实现:
-        print(f"--- [工具模拟] 正在编译: {latex_file_path} ---")
-        # 模拟编译失败的情况
-        return "编译错误: ! Undefined control sequence. l.15 \\includegraphics"
+        result = compile_latex_to_pdf(latex_content, templates)
+        if result.success:
+            response = {
+                "message": "PDF 编译成功。",
+                "pdf_path": result.pdf_path,
+                "temp_dir": result.temp_dir,
+            }
+            return json.dumps(response, ensure_ascii=False)
 
-
-def parse_document(file_path: str) -> Dict[str, Any]:
-    """
-    一个可以直接调用的文档解析函数。(已修正以处理验证器的返回值)
-
-    它会根据文件扩展名自动选择合适的解析器，
-    执行解析，验证结果，并返回一个结构化的Python字典。
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"文件不存在: {file_path}")
-
-    _, ext = os.path.splitext(file_path)
-    ext = ext.lower()
-
-    parsed_dict: Dict[str, Any]
-    if ext == ".docx":
-        parsed_dict = parse_docx_to_json(file_path)
-    elif ext == ".md":
-        parsed_dict = parse_md_to_json(file_path)
-    elif ext == ".txt":
-        parsed_dict = parse_txt_to_json(file_path)
-    else:
-        raise NotImplementedError(f"当前版本暂不支持 {ext} 文件解析。")
-
-    schema = load_document_schema()
-    is_valid = validate_parsed_document(parsed_dict, schema) # <-- 不再解包
-
-    if not is_valid:
-        raise ValueError("解析结果未能通过 Schema 验证。请检查文档内容或 schema_validator.py 的逻辑。")
-
-    return parsed_dict
+        if result.temp_dir:
+            cleanup_temp_dir(result.temp_dir)
+        return json.dumps(
+            {"message": "LaTeX 编译失败", "error_log": result.error_log},
+            ensure_ascii=False,
+        )
