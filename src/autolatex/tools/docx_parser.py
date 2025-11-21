@@ -15,6 +15,7 @@ from docx.table import _Cell, Table  # type: ignore
 from docx.text.paragraph import Paragraph  # type: ignore
 
 IMAGES_DIR = os.path.join(os.getcwd(), "parsed_images")
+CAPTION_PATTERN = re.compile(r"^(表|table)\s*[\d一二三四五六七八九十0-9\.-]*[:：．.\s-]*(.+)", re.IGNORECASE)
 
 
 def _ensure_dir(path: str) -> None:
@@ -98,6 +99,7 @@ def _parse_metadata(document: DocxDocument) -> Dict[str, Any]:
     keywords: List[str] = []
     collecting_abstract = False
     collecting_keywords = False
+    keywords_section_consumed = False
     for para in document.paragraphs:
         text = para.text.strip()
         lower_text = text.lower()
@@ -118,8 +120,16 @@ def _parse_metadata(document: DocxDocument) -> Dict[str, Any]:
             continue
         if collecting_abstract:
             abstract_lines.append(text)
-        elif collecting_keywords:
+            continue
+        if collecting_keywords:
+            if not text or len(text.split()) > 12:
+                collecting_keywords = False
+                keywords_section_consumed = True
+                continue
             keywords.extend([k.strip() for k in re.split(r"[;,，；]", text) if k.strip()])
+            continue
+        if keywords_section_consumed:
+            break
 
     metadata["abstract"] = "\n".join(abstract_lines).strip()
     metadata["keywords"] = keywords
@@ -176,6 +186,21 @@ def _table_to_content(table: Table) -> Dict[str, Any]:
     }
 
 
+def _pop_caption_candidate(content_list: List[Dict[str, Any]]) -> str:
+    """若上一段落是表格标题则返回并移除，避免重复。"""
+    if not content_list:
+        return ""
+    last_item = content_list[-1]
+    if last_item.get("type") != "paragraph":
+        return ""
+    text = last_item.get("text", "").strip()
+    match = CAPTION_PATTERN.match(text)
+    if match:
+        content_list.pop()
+        return text
+    return ""
+
+
 def parse_docx_to_json(file_path: str) -> Dict[str, Any]:
     document = Document(file_path)
     parsed_data: Dict[str, Any] = {
@@ -222,7 +247,11 @@ def parse_docx_to_json(file_path: str) -> Dict[str, Any]:
                 parsed_data["content"].append(content_entry)
 
         elif isinstance(block, Table):
-            parsed_data["content"].append(_table_to_content(block))
+            table_entry = _table_to_content(block)
+            caption_text = _pop_caption_candidate(parsed_data["content"])
+            if caption_text:
+                table_entry["caption"] = caption_text
+            parsed_data["content"].append(table_entry)
 
     if not parsed_data["bibliography"]:
         parsed_data["bibliography"].append(
