@@ -1,0 +1,26 @@
+# requirements.txt
+
+crewai
+crewai-tools
+langchain-openai
+python-dotenv
+
+# --- 添加以下这些用于文档解析的依赖 ---
+Markdown
+python-docx
+# 如果您还用到了其他库，比如处理 txt 的，也一并添加
+
+# --- 模块四：记忆与交互层依赖 ---
+# 向量数据库
+chromadb>=0.4.0
+
+# FastAPI 后端
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Gradio Web UI
+gradio>=4.0.0
+
+# HTTP 客户端
+requests>=2.31.0
