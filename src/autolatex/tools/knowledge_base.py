@@ -332,6 +332,46 @@ LATEX_TEMPLATE_KNOWLEDGE = [
             "bibliography_files": "misc/ref.bib (single file, unlike graduate template)",
             "misc_files": "1_originality.tex, 2_conclusion.tex, 3_reference.tex, 4_appendix.tex, 5_acknowledgements.tex"
         }
+    },
+    {
+        "journal": "BIThesis-Undergraduate-English",
+        "document": "BIThesis 本科生毕业设计（论文）模板（全英文）Undergraduate Thesis Template (English) - 北京理工大学本科生专用。使用 \\documentclass[type=bachelor_english]{bithesis}。这是英文本科生版本，与中文本科生版本（type=bachelor）不同。英文本科生毕业设计（论文）模板，bachelor degree thesis template in English，undergraduate graduation project in English。适用于需要全英文撰写的本科生，不适用于研究生。使用 type=bachelor_english 选项，不是 type=bachelor（中文）或 type=master/doctor（研究生）。bithesis 类基于 ctexbook，支持盲审格式（blindPeerReview=true）。默认封面为英文，但可以通过配置切换为中文封面。关键宏包：expl3, l3keys2e, geometry, xcolor, zhlineskip, titletoc, graphicx, fancyhdr, pdfpages, setspace, booktabs, multirow, tikz, etoolbox, hyperref, caption, array, amsmath, amssymb, pifont, amsthm, listings, enumitem, fmtcount, unicode-math, ifplatform, datetime2, biblatex。参考文献使用 biblatex 配合 gb7714-2015 样式（中文引用标准）。编译流程：xelatex -> biber -> xelatex -> xelatex（必须使用 XeLaTeX，不支持 pdfLaTeX）。模板包含封面、原创性声明、摘要、目录、正文、结论、参考文献、附录、致谢等完整结构，符合北京理工大学本科生毕业设计（论文）书写规范。\n\n模板文件路径：模板/undergraduate_thesis_en__1_/\n主文件：main.tex\n类文件：bithesis.cls\n必需字体文件：STXIHEI.TTF（华文细黑，用于封面标题）\n\n必需目录结构：\n- chapters/ (章节文件：0_abstract.tex, 1_chapter1.tex, 2_chapter2.tex, 3_chapter3.tex 等)\n- misc/ (其他文件：1_conclusions.tex, 2_references.tex, 3_appendices.tex, 4_acknowledgements.tex, ref.bib)\n- images/ (图片文件：header.png 封面头部图片)\n\n最小工作示例：\n\\documentclass[type=bachelor_english]{bithesis}\n\\BITSetup{\n  cover = {\n    headerImage = images/header.png,\n    xiheiFont = STXIHEI.TTF,\n    % date = {November 5, 1955},  % 可选：自定义封面日期\n  },\n  info = {\n    title = 你的论文标题（中文）,\n    titleEn = {Your Thesis Title},\n    school = School of Mechanical Engineering,\n    major = Bachelor of Science in Mechanical Engineering,\n    author = Feng Kaiyu,\n    studentId = 11xxxxxxxx,\n    supervisor = Alex Zhang,\n    keywords = {关键词1；关键词2},\n    keywordsEn = {keyword1; keyword2},\n  },\n  style = {\n    % head = {北京理工大学本科生毕业设计（论文）},  % 可选：中文页眉\n    % betterTimesNewRoman = true,  % 可选：使用开源字体替代 Times New Roman\n  },\n}\n\\usepackage[backend=biber,style=gb7714-2015]{biblatex}\n\\addbibresource{misc/ref.bib}\n\\begin{document}\n\\MakeCover\n\\MakeOriginality\n\\frontmatter\n\\input{chapters/0_abstract.tex}\n\\MakeTOC\n\\mainmatter\n\\input{chapters/1_chapter1.tex}\n\\backmatter\n\\input{misc/1_conclusions.tex}\n\\input{misc/2_references.tex}\n\\input{misc/3_appendices.tex}\n\\input{misc/4_acknowledgements.tex}\n\\end{document}\n\n常用配置选项：\n- type: bachelor_english (英文本科生)\n- blindPeerReview: true (开启盲审格式)\n- cover/prefer-zh: true (切换为中文封面，需要时)\n- cover/addTitleZh: false (隐藏封面中文标题，仅英文封面)\n\n重要注意事项：\n1. 必须使用 XeLaTeX 编译，不支持 pdfLaTeX\n2. 需要 biber 处理参考文献（不是 bibtex）\n3. 编译方式有两种：\n   - 推荐方式：使用 latexmk 命令（自动处理编译流程）\n   - 手动方式：xelatex -> biber -> xelatex -> xelatex（需要编译多次）\n4. latexmkrc 文件已配置好，使用 latexmk 时会自动使用 XeLaTeX 和 biber\n5. 需要 STXIHEI.TTF 字体文件用于封面标题\n6. 需要 images/header.png 图片文件用于封面头部\n7. 默认封面为英文，但可以通过 cover/prefer-zh=true 切换为中文封面\n8. 中文支持需要相应中文字体\n9. 在 Linux/macOS 下可能需要安装中易字库或使用 ctex={fontset=windows} 选项\n10. macOS 用户建议使用 TeX Live/MacTeX 2023 或更新版本，否则参考文献可能被错误查重\n11. 参考文献样式使用 gb7714-2015（中国国家标准）\n12. 项目地址：https://github.com/BITNP/BIThesis\n13. 使用手册和文档：https://bithesis.bitnp.net\n\n章节结构和使用模式：\n\n摘要结构（chapters/0_abstract.tex）：\n\\begin{abstract}\n  中文摘要内容（本科生建议300-500字）\n\\end{abstract}\n\\begin{abstractEn}\n  English abstract content (must match Chinese abstract)\n\\end{abstractEn}\n注意：经管学院要求先英文摘要再中文摘要，需要调换顺序。\n\n章节结构（chapters/1_chapter*.tex）：\n\\chapter{Chapter Title}  % 一级标题（英文）\n\\label{chap:label}  % 可选标签\n\\section{Section Title}  % 二级标题\n\\subsection{Subsection Title}  % 三级标题\n\n常用LaTeX元素：\n- 引用：\\cite{key} 或 \\parencite{key}（圆括号引用）\n- 交叉引用：\\ref{label} 或 \\autoref{label}\n- 图片：\\begin{figure}[htbp]\\centering\\includegraphics[width=0.75\\textwidth]{images/filename}\\caption{Caption}\\label{fig:label}\\end{figure}\n- 表格：\\begin{table}[htbp]\\centering\\caption{Caption}\\label{tab:label}\\begin{tabular*}{0.9\\textwidth}{@{\\extracolsep{\\fill}}cccc}\\toprule...\\midrule...\\bottomrule\\end{tabular*}\\end{table}\n- 公式：\\begin{equation}\\label{eq:label}...\\end{equation}\n\n参考文献结构（misc/ref.bib）：\n使用 biblatex 格式，支持 @article, @inproceedings, @book 等类型。示例：\n@article{key,\n  title = {Title},\n  author = {Author1 and Author2},\n  journal = {Journal Name},\n  volume = {Volume},\n  number = {Number},\n  pages = {Pages},\n  year = {Year},\n}\n\n参考文献显示（misc/2_references.tex）：\n\\begin{bibprint}\n  \\printbibliography[heading=none]\n\\end{bibprint}\n\n结论（misc/1_conclusions.tex）：\n结论内容（单独排写）\n\n附录（misc/3_appendices.tex）：\n附录内容（可选）\n\n致谢（misc/4_acknowledgements.tex）：\n致谢内容\n\n文件组织：\n- chapters/0_abstract.tex：摘要（中英文）\n- chapters/1_chapter1.tex, 2_chapter2.tex, 3_chapter3.tex...：各章节内容\n- misc/ref.bib：参考文献（与研究生模板不同，本科生只有一个 ref.bib 文件）\n- misc/1_conclusions.tex：结论（注意：英文模板使用复数形式 conclusions）\n- misc/2_references.tex：参考文献列表（注意：英文模板使用复数形式 references）\n- misc/3_appendices.tex：附录（注意：英文模板使用复数形式 appendices）\n- misc/4_acknowledgements.tex：致谢\n- images/：存放所有图片文件（包括封面需要的 header.png）\n\n与中文本科生模板的主要区别：\n1. 文档类选项：type=bachelor_english（英文）vs type=bachelor（中文）\n2. 默认封面：英文封面（可切换为中文）vs 中文封面\n3. 文件命名：misc/1_conclusions.tex（复数）vs misc/2_conclusion.tex（单数）\n4. 文件命名：misc/2_references.tex（复数）vs misc/3_reference.tex（单数）\n5. 文件命名：misc/3_appendices.tex（复数）vs misc/4_appendix.tex（单数）\n6. 封面配置：英文模板默认英文封面，但可通过 cover/prefer-zh=true 切换\n7. 页眉：默认英文，可通过 style/head 设置为中文\n8. 经管学院特殊要求：需要先英文摘要再中文摘要，需要调换 abstract 和 abstractEn 的顺序\n\n与研究生模板的主要区别：\n1. 文档类选项：type=bachelor_english（英文本科生）vs type=master/doctor（研究生）\n2. 文件结构：本科生使用 misc/ref.bib，研究生使用 reference/main.bib 和 reference/pub.bib\n3. 章节文件命名：本科生使用 0_abstract.tex, 1_chapter1.tex，研究生使用 abstract.tex, chapter1.tex\n4. 封面配置：本科生需要 headerImage 和 xiheiFont，研究生不需要\n5. 后置部分：本科生没有个人成果清单和个人简介，研究生有\n6. 摘要字数：本科生300-500字，研究生硕士500-800字，博士1000-1200字",
+        "metadata": {
+            "journal_name": "BIThesis-Undergraduate-English",
+            "template_type": "thesis",
+            "documentclass": "bithesis",
+            "base_class": "ctexbook",
+            "key_packages": "expl3, l3keys2e, geometry, xcolor, zhlineskip, titletoc, graphicx, fancyhdr, pdfpages, setspace, booktabs, multirow, tikz, etoolbox, hyperref, caption, array, amsmath, amssymb, pifont, amsthm, listings, enumitem, fmtcount, unicode-math, ifplatform, datetime2, biblatex",
+            "biblatex_style": "gb7714-2015",
+            "format": "single column",
+            "language": "english",
+            "compiler": "XeLaTeX",
+            "compilation_sequence": "xelatex -> biber -> xelatex -> xelatex",
+            "institution": "北京理工大学",
+            "degree_level": "undergraduate",
+            "supports_blind_review": True,
+            "template_path": "模板/undergraduate_thesis_en__1_/",
+            "main_file": "main.tex",
+            "class_file": "bithesis.cls",
+            "required_directories": "chapters/, misc/, images/",
+            "required_fonts": "STXIHEI.TTF",
+            "required_images": "images/header.png",
+            "compilation_tools": "latexmk (recommended) or manual xelatex",
+            "latexmkrc_file": "latexmkrc (configured for XeLaTeX + biber)",
+            "documentation_url": "https://bithesis.bitnp.net",
+            "github_url": "https://github.com/BITNP/BIThesis",
+            "abstract_environments": "abstract (Chinese), abstractEn (English)",
+            "chapter_structure": "\\chapter{}, \\section{}, \\subsection{}",
+            "citation_commands": "\\cite{}, \\parencite{}",
+            "cross_reference_commands": "\\ref{}, \\autoref{}",
+            "figure_environment": "figure with \\includegraphics, \\caption, \\label",
+            "table_environment": "table with tabular*, \\toprule, \\midrule, \\bottomrule",
+            "equation_environments": "equation",
+            "bibliography_files": "misc/ref.bib (single file, unlike graduate template)",
+            "misc_files": "1_conclusions.tex, 2_references.tex, 3_appendices.tex, 4_acknowledgements.tex",
+            "default_cover": "english",
+            "supports_chinese_cover": True
+        }
     }
 ]
 
@@ -385,7 +425,7 @@ def initialize_knowledge_base(persist_directory: str = "data/vector_db") -> Vect
                 new_documents.append(item["document"])
                 new_metadatas.append(item["metadata"])
                 new_ids.append(template_id)
-            elif item['journal'] in ['BIThesis-Graduate', 'BIThesis-Undergraduate']:
+            elif item['journal'] in ['BIThesis-Graduate', 'BIThesis-Undergraduate', 'BIThesis-Undergraduate-English']:
                 # BIThesis 模板需要更新（删除旧的后添加新的）
                 try:
                     db.delete_documents(ids=[template_id])
