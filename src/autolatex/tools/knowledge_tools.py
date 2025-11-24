@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 from crewai.tools import BaseTool
 from .knowledge_base import knowledge_base_search
-=======
 from crewai_tools import BaseTool
->>>>>>> original
 
 class KnowledgeBaseSearchTool(BaseTool):
     name: str = "LaTeX Template Knowledge Base Search"
