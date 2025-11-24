@@ -37,6 +37,8 @@ class Autolatex():
             verbose=True,
             # 使用知识库搜索工具来查找 LaTeX 模板
             tools=[KnowledgeBaseSearchTool()] 
+            # 提示：这里未来可能需要网络搜索或RAG工具来找模版
+            # tools=[SerperDevTool()] 
         )
 
     # --- 3. LaTeX 排版 Agent ---

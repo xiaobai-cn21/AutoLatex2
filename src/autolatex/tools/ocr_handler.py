@@ -18,6 +18,8 @@ import subprocess
 
 # 方式3: 使用当前 Python 解释器（如果 OCR 依赖已安装在当前环境）
 DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH = None  # None 表示使用当前 Python 解释器
+# (这部分保持不变)
+DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH = "C:/Users/Ding/anaconda3/envs/deepseek-ocr/python.exe"  # 确认这个路径是正确的
 
 # --- (以下路径通常不需要修改) ---
 OCR_SCRIPT_PATH = "vendor/DeepSeek-OCR/run_ocr.py"
@@ -42,6 +44,15 @@ elif not os.path.exists(DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH):
     print(f"[OCR Handler] 回退到当前 Python 解释器: {DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH}")
 else:
     print(f"[OCR Handler] 使用指定的 Python 解释器: {DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH}")
+# --- 2. 检查配置有效性 ---
+# ==============================================================================
+# (这部分保持不变)
+if not os.path.exists(DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH):
+    print("=" * 60)
+    print("!!!!!! 严重配置错误 in ocr_handler.py !!!!!!")
+    print(f"指定的 Python 解释器路径不存在: {DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH}")
+    print("请按照文件内的注释，正确设置 DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH 变量。")
+    print("=" * 60)
 
 
 # ==============================================================================

@@ -1,0 +1,93 @@
+```latex
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{subfigure}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,linkcolor={red},citecolor={red},urlcolor={red}]{hyperref}
+
+\cvprfinalcopy
+
+\begin{document}
+
+\title{AutoTeX Research Paper}
+
+\author{
+Alice Zhang\\
+Tsinghua University\\
+\and
+Bob Li\\
+MIT\\
+\and
+Carol Chen\\
+HKUST
+}
+
+\maketitle
+
+\begin{abstract}
+This document demonstrates the AutoTeX parsing flow.
+\end{abstract}
+
+\keywords{AutoTeX, Parsing, Schema, Word, Pipeline}
+
+\section{Introduction}
+
+This paper introduces the AutoTeX pipeline that converts complex documents into structured JSON outputs for downstream agents. The system leverages AI techniques and strict schema validation \cite{1}.
+
+\subsection{Background}
+
+Traditional document digitization workflows rely on manual formatting. AutoTeX automates this process by combining deterministic parsing with LLM-based inference.
+
+\begin{equation}
+E = mc^2
+\end{equation}
+
+\begin{verbatim}
+for i in range(3):
+    print('AutoTeX rocks!')
+\end{verbatim}
+
+\begin{table}[ht]
+\centering
+\caption{System Metrics}
+\begin{tabular}{lcc}
+\toprule
+Module & Latency (ms) & Accuracy \\
+\midrule
+Parser & 32 & 0.91 \\
+OCR & 58 & 0.87 \\
+Renderer & 20 & 0.95 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure 1: AutoTeX Architecture
+
+Further explanation with another paragraph referencing \cite{2}.
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\begin{thebibliography}{1}
+
+\bibitem{1}
+Alice Zhang, Bob Li.
+\newblock AutoTeX System Overview.
+\newblock Journal of Automation, 2024.
+
+\bibitem{2}
+Carol Chen.
+\newblock Structured Document Understanding.
+\newblock Conference on AI Systems, 2025.
+
+\end{thebibliography}
+
+\end{document}
+```

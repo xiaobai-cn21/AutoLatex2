@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 from crewai.tools import BaseTool
 from .knowledge_base import knowledge_base_search
+=======
+from crewai_tools import BaseTool
+>>>>>>> original
 
 class KnowledgeBaseSearchTool(BaseTool):
     name: str = "LaTeX Template Knowledge Base Search"
@@ -24,3 +28,4 @@ class KnowledgeBaseSearchTool(BaseTool):
             error_msg = f"知识库搜索出错: {str(e)}"
             print(f"--- [知识库搜索] {error_msg} ---")
             return error_msg
+

@@ -107,11 +107,39 @@ def compile_latex_to_pdf(
         main_basename = "main.tex"
         latex_command = [LATEX_CMD, "-interaction=nonstopmode", "-halt-on-error", main_basename]
 
+
+        def _read_log_file(temp_dir: str, basename: str = "main") -> str:
+            """读取 LaTeX .log 文件中的错误信息。"""
+            log_path = os.path.join(temp_dir, f"{basename}.log")
+            if os.path.exists(log_path):
+                try:
+                    with open(log_path, "r", encoding="utf-8", errors="ignore") as log_file:
+                        log_content = log_file.read()
+                        # 提取关键错误信息（通常以 ! 开头）
+                        error_lines = [
+                            line.strip()
+                            for line in log_content.split("\n")
+                            if line.strip().startswith("!")
+                            or "Error:" in line
+                            or "Fatal error" in line
+                        ]
+                        if error_lines:
+                            return "\n".join(error_lines[-20:])  # 返回最后20行错误
+                        return log_content[-5000:]  # 如果没有明显错误标记，返回最后5000字符
+                except Exception:  # pylint: disable=broad-except
+                    pass
+            return ""
+
         # Run LaTeX up to three times for refs
         for _ in range(2):
             result = _invoke_latex(latex_command, temp_dir)
             if result.returncode != 0:
                 return CompileResult(False, error_log=result.stdout + result.stderr)
+                log_content = _read_log_file(temp_dir)
+                error_msg = result.stdout + result.stderr
+                if log_content:
+                    error_msg = f"{error_msg}\n\n=== LaTeX Log 文件错误信息 ===\n{log_content}"
+                return CompileResult(False, error_log=error_msg)
 
         if _needs_bibliography(latex_content):
             bib_command = [BIB_CMD, "main"]
@@ -122,6 +150,19 @@ def compile_latex_to_pdf(
         final_result = _invoke_latex(latex_command, temp_dir)
         if final_result.returncode != 0:
             return CompileResult(False, error_log=final_result.stdout + final_result.stderr)
+                log_content = _read_log_file(temp_dir)
+                error_msg = bib_result.stdout + bib_result.stderr
+                if log_content:
+                    error_msg = f"{error_msg}\n\n=== LaTeX Log 文件错误信息 ===\n{log_content}"
+                return CompileResult(False, error_log=error_msg)
+
+        final_result = _invoke_latex(latex_command, temp_dir)
+        if final_result.returncode != 0:
+            log_content = _read_log_file(temp_dir)
+            error_msg = final_result.stdout + final_result.stderr
+            if log_content:
+                error_msg = f"{error_msg}\n\n=== LaTeX Log 文件错误信息 ===\n{log_content}"
+            return CompileResult(False, error_log=error_msg)
 
         pdf_path = os.path.join(temp_dir, "main.pdf")
         if not os.path.exists(pdf_path):
