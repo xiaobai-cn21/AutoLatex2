@@ -1,0 +1,231 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "AutoTeX Document Structure",
+    "description": "用于在AutoTeX项目模块间传递文档数据的结构定义",
+    "type": "object",
+    "properties": {
+      "metadata": {
+        "type": "object",
+        "description": "文档元信息",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "文档标题"
+          },
+          "authors": {
+            "type": "array",
+            "description": "作者列表",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "作者姓名"
+                },
+                "affiliation": {
+                  "type": "string",
+                  "description": "作者单位"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "作者邮箱"
+                }
+              },
+              "required": ["name"]
+            }
+          },
+          "abstract": {
+            "type": "string",
+            "description": "摘要正文"
+          },
+          "keywords": {
+            "type": "array",
+            "description": "关键词列表",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["title", "authors", "abstract"]
+      },
+      "content": {
+        "type": "array",
+        "description": "文档主体内容块序列",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "heading"
+                },
+                "level": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6,
+                  "description": "标题级别（1级为最高）"
+                },
+                "text": {
+                  "type": "string",
+                  "description": "标题文本"
+                }
+              },
+              "required": ["type", "level", "text"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "paragraph"
+                },
+                "text": {
+                  "type": "string",
+                  "description": "段落文本"
+                }
+              },
+              "required": ["type", "text"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "equation"
+                },
+                "format": {
+                  "type": "string",
+                  "enum": ["inline", "display"],
+                  "description": "行内公式或独立公式"
+                },
+                "latex": {
+                  "type": "string",
+                  "description": "LaTeX公式代码（如已从图片OCR识别）"
+                },
+                "image_path": {
+                  "type": "string",
+                  "description": "公式图片路径（如尚未识别）"
+                }
+              },
+              "required": ["type", "format"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "table"
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "表格标题"
+                },
+                "latex": {
+                  "type": "string",
+                  "description": "表格LaTeX代码（如已从图片OCR识别）"
+                },
+                "image_path": {
+                  "type": "string",
+                  "description": "表格图片路径（如尚未识别）"
+                },
+                "data": {
+                  "type": "array",
+                  "description": "表格数据（二维数组），作为OCR的备用或验证",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": ["type", "caption"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "figure"
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "图标题"
+                },
+                "image_path": {
+                  "type": "string",
+                  "description": "图片文件路径"
+                }
+              },
+              "required": ["type", "caption", "image_path"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "code"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "编程语言"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "代码内容"
+                }
+              },
+              "required": ["type", "content"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "reference"
+                },
+                "marker": {
+                  "type": "string",
+                  "description": "引用标记，如 '[1]' 或 '\\cite{author2024}'"
+                }
+              },
+              "required": ["type", "marker"]
+            }
+          ]
+        }
+      },
+      "bibliography": {
+        "type": "array",
+        "description": "参考文献列表",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "引用ID"
+            },
+            "type": {
+              "type": "string",
+              "description": "文献类型（article, inproceedings等）"
+            },
+            "authors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "title": {
+              "type": "string"
+            },
+            "venue": {
+              "type": "string",
+              "description": "期刊/会议名称"
+            },
+            "year": {
+              "type": "string"
+            },
+            "raw": {
+              "type": "string",
+              "description": "原始参考文献文本"
+            }
+          },
+          "required": ["id", "raw"]
+        }
+      }
+    },
+    "required": ["metadata", "content", "bibliography"]
+  }
