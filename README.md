@@ -1,75 +1,23 @@
 # 目前更新
-在output_log.txt存入第一次运行结果
-
-在output文件夹中存放生成的Latex文档
-
-
-
+整理了一下项目结构
 
 # 项目使用指南
-## 1. CrewAI使用方法（官方提供）
-
-Welcome to the Autolatex Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
-
-### Installation
-
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
-
-First, if you haven't already, install uv:
-
-```bash
-pip install uv
-```
-
-Next, navigate to your project directory and install the dependencies:
-
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-#### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/autolatex/config/agents.yaml` to define your agents
-- Modify `src/autolatex/config/tasks.yaml` to define your tasks
-- Modify `src/autolatex/crew.py` to add your own logic, tools and specific args
-- Modify `src/autolatex/main.py` to add custom inputs for your agents and tasks
-
-### Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
-
-```bash
-$ crewai run
-```
-
-This command initializes the autolatex Crew, assembling the agents and assigning them tasks as defined in your configuration.
-
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
-
-## Understanding Your Crew
-
-The autolatex Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
-
-### Support
-
-For support, questions, or feedback regarding the Autolatex Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
-
-Let's create wonders together with the power and simplicity of crewAI.
-
-## 2. 项目结构
+## 1. 项目结构
+整体结构
 ```cmd
 autolatex/
 ├── .gitignore
 ├── knowledge/
 ├── pyproject.toml
 ├── README.md
-├── .env
+├── .env -- 到这里之前都是一些Crewai的文件
+├── data/ -- 这是白同学以前存放论文模版的文件夹（似乎要改）
+├── docs/ -- markdown格式的说明（包括帮助我配置的guideline和已完成的任务报告）
+├── knowledge/ -- crewai自己建的关于用户的一些信息
+├── Agent输出/ -- 我们的Agent的输出
+├── 模板/ -- 目前存放的是一些BIT毕业论文模版
+├── test_data/ -- hbk同学创建的用来测试的word、txt、markdown文件
+├── vendor/ --有个deepseek-OCR的文件
 └── src/
     └── autolatex/
         ├── __init__.py
@@ -90,5 +38,5 @@ MODEL=openai/deepseek-chat
 OPENAI_API_KEY = <填入你的key>
 OPENAI_API_BASE=https://api.deepseek.com
 ```
-## 3. 关于与B、D同学的接口函数部分
+## 2. 关于与B、D同学的接口函数部分
 在src\autolatex\tools\document_tools.py和tools\knowledge_tools.py中
