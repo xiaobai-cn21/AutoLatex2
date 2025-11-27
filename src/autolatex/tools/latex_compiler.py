@@ -150,11 +150,11 @@ def compile_latex_to_pdf(
         final_result = _invoke_latex(latex_command, temp_dir)
         if final_result.returncode != 0:
             return CompileResult(False, error_log=final_result.stdout + final_result.stderr)
-                log_content = _read_log_file(temp_dir)
-                error_msg = bib_result.stdout + bib_result.stderr
-                if log_content:
-                    error_msg = f"{error_msg}\n\n=== LaTeX Log 文件错误信息 ===\n{log_content}"
-                return CompileResult(False, error_log=error_msg)
+            log_content = _read_log_file(temp_dir)
+            error_msg = bib_result.stdout + bib_result.stderr
+            if log_content:
+                error_msg = f"{error_msg}\n\n=== LaTeX Log 文件错误信息 ===\n{log_content}"
+            return CompileResult(False, error_log=error_msg)
 
         final_result = _invoke_latex(latex_command, temp_dir)
         if final_result.returncode != 0:

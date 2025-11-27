@@ -1,7 +1,7 @@
 ```latex
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
-% Required packages
+% Required packages for CVPR template
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -35,7 +35,7 @@ HKUST
 This document demonstrates the AutoTeX parsing flow.
 \end{abstract}
 
-\keywords{AutoTeX, Parsing, Schema, Word, Pipeline}
+\keywords{AutoTeX, Parsing, Schema, Word, Pipeline, 1 Introduction}
 
 \section{1 Introduction}
 
@@ -45,16 +45,14 @@ This paper introduces the AutoTeX pipeline that converts complex documents into 
 
 Traditional document digitization workflows rely on manual formatting. AutoTeX automates this process by combining deterministic parsing with LLM-based inference.
 
-\begin{equation}
-E = mc^2
-\end{equation}
+$$E = mc^2$$
 
 \begin{verbatim}
 for i in range(3):
     print('AutoTeX rocks!')
 \end{verbatim}
 
-\begin{table}[h]
+\begin{table}
 \centering
 \caption{Table 1: System Metrics}
 \begin{tabular}{|c|c|c|}
@@ -62,7 +60,9 @@ for i in range(3):
 Module & Latency (ms) & Accuracy \\
 \hline
 Parser & 32 & 0.91 \\
+\hline
 OCR & 58 & 0.87 \\
+\hline
 Renderer & 20 & 0.95 \\
 \hline
 \end{tabular}
@@ -75,9 +75,9 @@ Further explanation with another paragraph referencing \cite{2}.
 \bibliographystyle{plainnat}
 \begin{thebibliography}{9}
 
-\bibitem{1} Alice Zhang, Bob Li. AutoTeX System Overview. Journal of Automation, 2024.
+\bibitem[1]{1} Alice Zhang, Bob Li. AutoTeX System Overview. Journal of Automation, 2024.
 
-\bibitem{2} Carol Chen. Structured Document Understanding. Conference on AI Systems, 2025.
+\bibitem[2]{2} Carol Chen. Structured Document Understanding. Conference on AI Systems, 2025.
 
 \end{thebibliography}
 

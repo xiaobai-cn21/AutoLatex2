@@ -19,7 +19,7 @@ import subprocess
 # 方式3: 使用当前 Python 解释器（如果 OCR 依赖已安装在当前环境）
 DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH = None  # None 表示使用当前 Python 解释器
 # (这部分保持不变)
-DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH = "C:/Users/Ding/anaconda3/envs/deepseek-ocr/python.exe"  # 确认这个路径是正确的
+# DEEPSEEK_OCR_CONDA_ENV_PYTHON_PATH = "C:/Users/Ding/anaconda3/envs/deepseek-ocr/python.exe"  # 确认这个路径是正确的
 
 # --- (以下路径通常不需要修改) ---
 OCR_SCRIPT_PATH = "vendor/DeepSeek-OCR/run_ocr.py"
