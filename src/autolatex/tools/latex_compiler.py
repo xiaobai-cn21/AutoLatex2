@@ -8,10 +8,10 @@ import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 LATEX_TIMEOUT = int(os.getenv("AUTOTEX_LATEX_TIMEOUT", "120"))
-DOCKER_IMAGE = os.getenv("AUTOTEX_LATEX_IMAGE", "autotex-latex-compiler")
+DOCKER_IMAGE = os.getenv("AUTOTEX_LATEX_IMAGE", "autotex-compiler:latest")
 USE_DOCKER = os.getenv("AUTOTEX_LATEX_USE_DOCKER", "1") not in {"0", "false", "False"}
 LATEX_CMD = os.getenv("AUTOTEX_LATEX_CMD", "xelatex")
 BIB_CMD = os.getenv("AUTOTEX_BIB_CMD", "bibtex")
@@ -29,18 +29,17 @@ def _command_exists(command: str) -> bool:
     return shutil.which(command) is not None
 
 
-def _setup_compile_env(
-    latex_content: str, journal_template_files: Dict[str, str]
-) -> str:
+def _setup_compile_env(latex_content: str, template_dir: str) -> str:
     temp_dir = tempfile.mkdtemp(prefix="autotex_latex_compile_")
+    if not template_dir:
+        raise ValueError("template_dir 不能为空。")
+    if not os.path.isdir(template_dir):
+        raise FileNotFoundError(f"模板目录不存在: {template_dir}")
+    shutil.copytree(template_dir, temp_dir, dirs_exist_ok=True)
+
     main_tex_path = os.path.join(temp_dir, "main.tex")
     with open(main_tex_path, "w", encoding="utf-8") as tex_file:
         tex_file.write(latex_content)
-
-    for filename, content in (journal_template_files or {}).items():
-        file_path = os.path.join(temp_dir, filename)
-        with open(file_path, "w", encoding="utf-8") as template_file:
-            template_file.write(content)
 
     return temp_dir
 
@@ -98,12 +97,10 @@ def _invoke_latex(command: List[str], temp_dir: str) -> subprocess.CompletedProc
     return _run_command(exec_command, temp_dir if not USE_DOCKER else None)
 
 
-def compile_latex_to_pdf(
-    latex_content: str, journal_template_files: Optional[Dict[str, str]] = None
-) -> CompileResult:
+def compile_latex_to_pdf(latex_content: str, template_dir: str) -> CompileResult:
     temp_dir: Optional[str] = None
     try:
-        temp_dir = _setup_compile_env(latex_content, journal_template_files or {})
+        temp_dir = _setup_compile_env(latex_content, template_dir)
         main_basename = "main.tex"
         latex_command = [LATEX_CMD, "-interaction=nonstopmode", "-halt-on-error", main_basename]
 
