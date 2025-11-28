@@ -154,7 +154,7 @@ def create_ui() -> gr.Blocks:
     }
     """
     
-    with gr.Blocks(css=custom_css, title="AutoLaTeX - LaTeX智能排版专家") as demo:
+    with gr.Blocks(title="AutoLaTeX - LaTeX智能排版专家") as demo:
         # 标题
         gr.Markdown(
             """
