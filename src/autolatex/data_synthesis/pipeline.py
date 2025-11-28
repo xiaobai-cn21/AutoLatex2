@@ -6,7 +6,7 @@ from crewai import Task, Crew, LLM
 from dotenv import load_dotenv
 
 # --- 导入所需模块 ---
-from autolatex.tools.document_tools import parse_document  # <-- 已修正
+from autolatex.tools.document_parser import parse_md_to_json
 from autolatex.tools.ocr_handler import recognize_image_to_latex
 from autolatex.data_synthesis.layout_expert import LayoutExpertAgents
 from autolatex.tools.template_tools import TemplateTools
@@ -32,7 +32,7 @@ def process_single_paper(paper_dir: str, template_name: str):
 
         # 1. 解析为JSON (现在这行代码可以正确工作了)
         print(f"  - 步骤1: 解析文档 {markdown_path}")
-        document_json = parse_document(markdown_path)  # 返回的是一个字典
+        document_json = parse_md_to_json(markdown_path)  # 返回的是一个字典
 
         # 2. 增强JSON (OCR)
         print("  - 步骤2: 执行OCR并增强JSON")

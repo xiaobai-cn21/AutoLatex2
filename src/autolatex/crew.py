@@ -3,7 +3,8 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 from .model import DocumentStructure, EquationList 
-from autolatex.tools.document_tools import DocumentParserTool, LaTeXCompilerTool
+from autolatex.tools.document_tools import DocumentParserTool
+from autolatex.tools.latex_tools import LaTeXCompilerTool
 from autolatex.tools.ocr_tool import DeepSeekOCRTool
 from autolatex.tools.knowledge_tools import KnowledgeBaseSearchTool
 
