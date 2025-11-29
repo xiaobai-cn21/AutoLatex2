@@ -143,16 +143,17 @@ async def convert_paper(request: PaperConvertRequest):
     将上传的论文文件转换为 LaTeX 格式
     """
     try:
-        # 验证文件路径
-        if not os.path.exists(request.file_path):
-            raise HTTPException(status_code=404, detail=f"文件不存在: {request.file_path}")
+        # 将文件路径转换为绝对路径并验证
+        file_path = os.path.abspath(request.file_path)
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail=f"文件不存在: {file_path}")
         
         # 准备输入参数
         from datetime import datetime
         inputs = {
             'topic': request.topic or '自动将word、txt、markdown格式论文转化为Latex格式论文',
             'current_year': str(datetime.now().year),
-            'file_path': request.file_path,
+            'file_path': file_path,
             'journal_name': request.journal_name,
         }
         
@@ -187,12 +188,12 @@ async def upload_paper(file: UploadFile = File(...)):
     接收用户上传的论文文件并保存到临时目录
     """
     try:
-        # 创建上传目录
-        upload_dir = "data/uploads"
+        # 创建上传目录（使用项目根目录下的绝对路径，避免相对路径引发的 File Not Found 问题）
+        upload_dir = os.path.join(project_root, "data", "uploads")
         os.makedirs(upload_dir, exist_ok=True)
-        
-        # 保存文件
-        file_path = os.path.join(upload_dir, file.filename)
+
+        # 保存文件并返回绝对路径
+        file_path = os.path.abspath(os.path.join(upload_dir, file.filename))
         with open(file_path, "wb") as f:
             content = await file.read()
             f.write(content)

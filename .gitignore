@@ -1,3 +1,111 @@
-.env
+# =========================================================================
+# General Python Files
+# =========================================================================
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+# Usually dist/ but some people prefer building in a separate directory
+*.spec
+
+
+# =========================================================================
+# IDE / Editor specific files
+# =========================================================================
+
+# VS Code
+.vscode/
+.history/
+
+# PyCharm
+.idea/
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+
+# =========================================================================
+# Project-specific Files for AutoLaTeX (!!! IMPORTANT !!!)
+# =========================================================================
+
+# Temporary output from Agent runs
+Agent输出/
+parsed_images/
+
+# Local developer tools and scripts (should not be in version control)
+dev_tools/
+
+# Vector database data files (keep the directory, ignore the data)
+data/vector_db/*.sqlite3
+data/vector_db/*.bin
+data/vector_db/*.pkl
+data/vector_db/index/
+
+# Environment variables (NEVER commit secrets!)
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+
+# =========================================================================
+# OS-specific files
+# =========================================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+
+# =========================================================================
+# Package manager lock files (optional, depends on team strategy)
+# =========================================================================
+# If your team uses different OS and `uv.lock` causes cross-platform issues,
+# you might consider ignoring it. For now, we'll keep it.
+# uv.lock
+/Agent输出
+/Agent输出

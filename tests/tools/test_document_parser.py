@@ -6,8 +6,17 @@ import json
 import os
 from typing import Dict
 
-from document_tools import DocumentParserTool
-from schema_validator import load_document_schema, validate_parsed_document
+import sys
+from pathlib import Path
+
+# 添加 src 目录到路径
+project_root = Path(__file__).resolve().parent.parent.parent
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
+from autolatex.tools.document_tools import DocumentParserTool
+from autolatex.tools.schema_validator import load_document_schema, validate_parsed_document
 
 BASE_DIR = os.path.dirname(__file__)
 DOCX_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "docx_samples"))

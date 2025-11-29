@@ -4,19 +4,32 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
+import sys
+import tempfile
+from pathlib import Path
 from typing import Dict
 
-from document_tools import LaTeXCompilerTool
-from latex_compiler import cleanup_temp_dir
+# 添加 src 目录到路径
+project_root = Path(__file__).resolve().parent.parent.parent
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
+from autolatex.tools.latex_tools import LaTeXCompilerTool
+from autolatex.tools.latex_compiler import cleanup_temp_dir
 
 
 def run_compilation(latex_source: str, templates: Dict[str, str] | None = None) -> Dict[str, str]:
     """Invoke LaTeXCompilerTool and return parsed JSON output."""
     tool = LaTeXCompilerTool()
-    templates_json = json.dumps(templates or {}, ensure_ascii=False)
-    output = tool._run(latex_source, templates_json)
-    return json.loads(output)
+    with tempfile.TemporaryDirectory(prefix="autotex_template_") as tmp_template_dir:
+        if templates:
+            for filename, content in templates.items():
+                file_path = Path(tmp_template_dir) / filename
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                file_path.write_text(content, encoding="utf-8")
+        output = tool._run(latex_source, os.path.abspath(tmp_template_dir))
+        return json.loads(output)
 
 
 def assert_pdf_result(result: Dict[str, str]) -> None:
@@ -57,7 +70,8 @@ def test_compile_failure() -> None:
 \end{document}
 """
     tool = LaTeXCompilerTool()
-    output = tool._run(latex, "{}")
+    with tempfile.TemporaryDirectory(prefix="autotex_template_") as tmp_template_dir:
+        output = tool._run(latex, os.path.abspath(tmp_template_dir))
     result = json.loads(output)
     assert "失败" in result.get("message", "")
     assert "error_log" in result and "LaTeX" in result["error_log"]
