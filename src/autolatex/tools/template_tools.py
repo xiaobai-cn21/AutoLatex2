@@ -4,6 +4,8 @@
 提供从模板管理器检索期刊模板文件的功能。
 """
 
+from pathlib import Path
+
 from crewai.tools import BaseTool  # type: ignore
 
 from .template_manager import get_journal_template_files
@@ -21,7 +23,7 @@ class TemplateRetrievalTool(BaseTool):
         
         Args:
             template_name: 模板名称，应该是期刊名称（如 'cvpr', 'ieee' 等）
-                          -> 从 src/autolatex/templates/journals/ 读取
+                          -> 从项目根目录/模板/ 读取
         
         Returns:
             模板文件内容字符串，如果是文件夹则返回主要文件内容
@@ -40,7 +42,12 @@ class TemplateRetrievalTool(BaseTool):
             pass
         
         # 如果找不到模板，返回错误信息
-        return f"错误：找不到名为 {template_name} 的模板目录。请确保模板存在于 src/autolatex/templates/journals/{template_name}/"
+        # 动态计算项目根目录
+        # __file__ 位于: src/autolatex/tools/template_tools.py
+        # 向上4级到达项目根目录
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        template_path = project_root / "模板" / template_name
+        return f"错误：找不到名为 {template_name} 的模板目录。请确保模板存在于 {template_path}/"
 
 
 # 向后兼容：保留 TemplateTools 作为别名
