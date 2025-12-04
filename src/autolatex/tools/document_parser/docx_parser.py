@@ -15,7 +15,10 @@ from docx.table import _Cell, Table  # type: ignore
 from docx.text.paragraph import Paragraph  # type: ignore
 
 IMAGES_DIR = os.path.join(os.getcwd(), "parsed_images")
-CAPTION_PATTERN = re.compile(r"^(表|table)\s*[\d一二三四五六七八九十0-9\.-]*[:：．.\s-]*(.+)", re.IGNORECASE)
+CAPTION_PATTERN = re.compile(
+    r"^(表|table|图|figure)\s*[\d一二三四五六七八九十0-9\.-]*[:：．.\s-]*(.+)",
+    re.IGNORECASE
+)
 
 
 def _ensure_dir(path: str) -> None:
@@ -50,6 +53,91 @@ def _guess_heading_level(style_name: str) -> Optional[int]:
     if match:
         return int(match.group(1))
     return None
+
+
+def _get_list_info(para: Paragraph) -> Optional[Dict[str, Any]]:
+    """若该段落属于某个 Word 列表，返回 { "num_id": int, "level": int }，否则返回 None。"""
+    try:
+        p_elm = para._p
+        pPr = p_elm.pPr
+        if pPr is None:
+            return None
+        numPr = pPr.numPr
+        if numPr is None:
+            return None
+        num_id = numPr.numId.val if numPr.numId is not None else None
+        ilvl = numPr.ilvl.val if numPr.ilvl is not None else 0
+        if num_id is not None:
+            return {"num_id": num_id, "level": ilvl}
+    except Exception:
+        pass
+    return None
+
+
+def _extract_images_from_paragraph(para: Paragraph) -> List[Dict[str, Any]]:
+    """从段落的 runs 中提取图片。"""
+    images = []
+    try:
+        for run in para.runs:
+            # 检查 run 中是否包含 drawing 元素
+            drawing_elems = run._r.xpath('.//w:drawing')
+            if not drawing_elems:
+                continue
+            # 从 run.part.related_parts 中找到 image_part
+            for rel_id, rel_part in run.part.related_parts.items():
+                content_type = getattr(rel_part, "content_type", "")
+                if content_type.startswith("image/"):
+                    path = _save_image(rel_part)
+                    images.append({"type": "image", "path": path, "caption": ""})
+    except Exception:
+        pass
+    return images
+
+
+def _detect_formula_block(text: str) -> Optional[str]:
+    """检测整段是否为块级公式。"""
+    text = text.strip()
+    # 检测 $$...$$ 或 \[...\]
+    if re.match(r"^\s*(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\])\s*$", text):
+        # 提取纯 LaTeX
+        if text.startswith("$$") and text.endswith("$$"):
+            return text[2:-2].strip()
+        elif text.startswith("\\[") and text.endswith("\\]"):
+            return text[2:-2].strip()
+    return None
+
+
+def _extract_inline_formulas(text: str) -> List[str]:
+    """提取行内公式 $...$。"""
+    return re.findall(r"\$(?!\$)([^$]+)\$(?!\$)", text)
+
+
+def _extract_reference_markers(text: str) -> List[str]:
+    """提取引用标记，支持数字型和作者-年份型。"""
+    markers = []
+    # 数字型: [1], [2,3], [1-3] 等，排除任务列表 [ ] [x]
+    markers.extend(re.findall(r"\[(?![\sxX\*]\])([0-9,\-\s]+)\]", text))
+    # 作者-年份型: (Smith, 2020) (Smith et al., 2020a)
+    markers.extend(re.findall(r"\([A-Za-z][^)]*\d{4}[a-z]?\)", text))
+    return markers
+
+
+def _build_inlines_from_runs(para: Paragraph) -> List[Dict[str, Any]]:
+    """从段落的 runs 构建行内样式结构。"""
+    inlines = []
+    for run in para.runs:
+        t = run.text
+        if not t:
+            continue
+        inline_item: Dict[str, Any] = {"type": "text", "text": t}
+        if run.bold:
+            inline_item["bold"] = True
+        if run.italic:
+            inline_item["italic"] = True
+        if run.underline:
+            inline_item["underline"] = True
+        inlines.append(inline_item)
+    return inlines
 
 
 def _parse_metadata(document: DocxDocument) -> Dict[str, Any]:
@@ -149,27 +237,55 @@ def _paragraph_to_content(para: Paragraph) -> Optional[Dict[str, Any]]:
     if not text:
         return None
 
+    # 1. 检测标题
     if para.style:
         heading_level = _guess_heading_level(para.style.name)
         if heading_level:
-            return {"type": "heading", "level": heading_level, "text": text}
+            # 提取编号和纯文本
+            m = re.match(r"^(\d+(\.\d+)*)\s+(.*)$", text)
+            if m:
+                number = m.group(1)
+                pure_text = m.group(3)
+            else:
+                number = ""
+                pure_text = text
+            return {
+                "type": "heading",
+                "level": heading_level,
+                "number": number,
+                "text": pure_text,
+            }
         if "code" in para.style.name.lower():
             return {"type": "code", "language": "", "content": text}
 
-    if re.match(r".*\$[^$]+\$.*", text):
-        format_type = "inline"
-        if text.startswith("$$") and text.endswith("$$"):
-            format_type = "display"
-        return {"type": "equation", "format": format_type, "latex": text, "image_path": ""}
+    # 2. 检测块级公式
+    formula_block = _detect_formula_block(text)
+    if formula_block:
+        return {"type": "formula_block", "latex": formula_block}
 
-    reference_matches = re.findall(r"\[[0-9]+\]", text)
-    if reference_matches:
-        # 返回段落和引用两个内容块
-        reference_blocks = [{"type": "reference", "marker": marker} for marker in reference_matches]
-        paragraph_block = {"type": "paragraph", "text": text}
-        return {"paragraph": paragraph_block, "references": reference_blocks}
+    # 3. 检测行内公式
+    inline_formulas = _extract_inline_formulas(text)
+    if inline_formulas:
+        # 如果整段几乎都是公式，可以作为多个 formula_inline 返回
+        # 这里简化处理：如果有行内公式，记录在段落中
+        pass
 
-    return {"type": "paragraph", "text": text}
+    # 4. 构建段落，包含行内样式和引用标记
+    inlines = _build_inlines_from_runs(para)
+    reference_markers = _extract_reference_markers(text)
+
+    result: Dict[str, Any] = {
+        "type": "paragraph",
+        "text": text,
+    }
+    if inlines:
+        result["inlines"] = inlines
+    if reference_markers:
+        result["reference_markers"] = reference_markers
+    if inline_formulas:
+        result["inline_formulas"] = inline_formulas
+
+    return result
 
 
 def _table_to_content(table: Table) -> Dict[str, Any]:
@@ -210,20 +326,41 @@ def parse_docx_to_json(file_path: str) -> Dict[str, Any]:
     }
 
     bibliography_started = False
+    current_list_items: List[Dict[str, Any]] = []
+    current_list_num_id: Optional[int] = None
+
+    def flush_list():
+        """将当前累积的列表项输出为一个 list 结构。"""
+        nonlocal current_list_items, current_list_num_id
+        if current_list_items:
+            parsed_data["content"].append(
+                {
+                    "type": "list",
+                    "ordered": True,  # 简化处理，暂时都标记为有序
+                    "items": current_list_items,
+                }
+            )
+            current_list_items = []
+            current_list_num_id = None
 
     for block in _iter_block_items(document):
         if isinstance(block, Paragraph):
             text = block.text.strip()
             if not text:
                 continue
+
+            # 检测参考文献区域
             if text.lower().startswith(("references", "参考文献")):
+                flush_list()
                 bibliography_started = True
                 continue
+
             if bibliography_started:
+                # 扩展参考文献编号格式识别
                 bib_id = ""
-                match = re.match(r"\[(\d+)]", text)
+                match = re.match(r"^\[(\d+)\]|^(\d+)[\.))]|\((\d+)\)", text)
                 if match:
-                    bib_id = match.group(1)
+                    bib_id = match.group(1) or match.group(2) or match.group(3) or ""
                 parsed_data["bibliography"].append(
                     {
                         "id": bib_id,
@@ -237,21 +374,49 @@ def parse_docx_to_json(file_path: str) -> Dict[str, Any]:
                 )
                 continue
 
-            content_entry = _paragraph_to_content(block)
-            if not content_entry:
+            # 检测列表
+            list_info = _get_list_info(block)
+            if list_info:
+                num_id = list_info["num_id"]
+                level = list_info["level"]
+                # 如果列表 ID 变化，先 flush 前一个列表
+                if current_list_num_id is not None and current_list_num_id != num_id:
+                    flush_list()
+                current_list_num_id = num_id
+                current_list_items.append({"text": text, "level": level})
                 continue
-            if "paragraph" in content_entry:
-                parsed_data["content"].append(content_entry["paragraph"])
-                parsed_data["content"].extend(content_entry["references"])
             else:
+                # 非列表段落，先 flush 列表
+                flush_list()
+
+            # 检测图片
+            images = _extract_images_from_paragraph(block)
+            if images:
+                for img in images:
+                    caption_text = _pop_caption_candidate(parsed_data["content"])
+                    if caption_text:
+                        img["caption"] = caption_text
+                    parsed_data["content"].append(img)
+                # 如果段落中除了图片还有文本，继续处理
+                if not text:
+                    continue
+
+            # 普通段落处理
+            content_entry = _paragraph_to_content(block)
+            if content_entry:
                 parsed_data["content"].append(content_entry)
 
         elif isinstance(block, Table):
+            # 表格前先 flush 列表
+            flush_list()
             table_entry = _table_to_content(block)
             caption_text = _pop_caption_candidate(parsed_data["content"])
             if caption_text:
                 table_entry["caption"] = caption_text
             parsed_data["content"].append(table_entry)
+
+    # 最后 flush 可能残留的列表
+    flush_list()
 
     if not parsed_data["bibliography"]:
         parsed_data["bibliography"].append(
