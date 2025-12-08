@@ -46,7 +46,10 @@ def _save_image(image_part) -> str:
     image_path = os.path.join(IMAGES_DIR, image_name)
     with open(image_path, "wb") as image_file:
         image_file.write(image_part.blob)
-    return image_path
+    
+    # 返回相对路径（相对于项目根目录），统一使用正斜杠以兼容不同操作系统
+    relative_path = os.path.join("parsed_images", image_name)
+    return relative_path.replace("\\", "/")
 
 
 def _iter_block_items(parent: DocxDocument):
