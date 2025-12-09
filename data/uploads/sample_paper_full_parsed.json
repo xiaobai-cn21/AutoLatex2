@@ -1,0 +1,182 @@
+{
+  "metadata": {
+    "title": "AutoTeX Research Paper",
+    "authors": [
+      {
+        "name": "Alice Zhang",
+        "affiliation": "Tsinghua University",
+        "email": ""
+      },
+      {
+        "name": "Bob Li",
+        "affiliation": "MIT",
+        "email": ""
+      },
+      {
+        "name": "Carol Chen",
+        "affiliation": "HKUST",
+        "email": ""
+      }
+    ],
+    "abstract": "This document demonstrates the AutoTeX parsing flow.",
+    "keywords": [
+      "AutoTeX",
+      "Parsing",
+      "Schema",
+      "Word",
+      "Pipeline"
+    ]
+  },
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "AutoTeX Research Paper",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "AutoTeX Research Paper"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Alice Zhang (Tsinghua University); Bob Li (MIT); Carol Chen (HKUST)",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Alice Zhang (Tsinghua University); Bob Li (MIT); Carol Chen (HKUST)"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Abstract: This document demonstrates the AutoTeX parsing flow.",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Abstract: This document demonstrates the AutoTeX parsing flow."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Keywords: AutoTeX, Parsing, Schema, Word, Pipeline",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Keywords: AutoTeX, Parsing, Schema, Word, Pipeline"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 1,
+      "number": "1",
+      "text": "Introduction"
+    },
+    {
+      "type": "paragraph",
+      "text": "This paper introduces the AutoTeX pipeline that converts complex documents into structured JSON outputs for downstream agents. The system leverages AI techniques and strict schema validation [1].",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "This paper introduces the AutoTeX pipeline that converts complex documents into structured JSON outputs for downstream agents. The system leverages AI techniques and strict schema validation [1]."
+        }
+      ],
+      "reference_markers": [
+        "1"
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "number": "1.1",
+      "text": "Background"
+    },
+    {
+      "type": "paragraph",
+      "text": "Traditional document digitization workflows rely on manual formatting. AutoTeX automates this process by combining deterministic parsing with LLM-based inference.",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Traditional document digitization workflows rely on manual formatting. AutoTeX automates this process by combining deterministic parsing with LLM-based inference."
+        }
+      ]
+    },
+    {
+      "type": "formula_block",
+      "latex": "E = mc^2"
+    },
+    {
+      "type": "code",
+      "language": "",
+      "content": "for i in range(3):\n    print('AutoTeX rocks!')"
+    },
+    {
+      "type": "table",
+      "caption": "Table 1: System Metrics",
+      "latex": "",
+      "image_path": "",
+      "data": [
+        [
+          "Module",
+          "Latency (ms)",
+          "Accuracy"
+        ],
+        [
+          "Parser",
+          "32",
+          "0.91"
+        ],
+        [
+          "OCR",
+          "58",
+          "0.87"
+        ],
+        [
+          "Renderer",
+          "20",
+          "0.95"
+        ]
+      ]
+    },
+    {
+      "type": "image",
+      "path": "parsed_images/aa104309-0f53-41f3-b706-76ae1a7c78dc.png",
+      "caption": "Figure 1: AutoTeX Architecture"
+    },
+    {
+      "type": "paragraph",
+      "text": "Further explanation with another paragraph referencing [2].",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Further explanation with another paragraph referencing [2]."
+        }
+      ],
+      "reference_markers": [
+        "2"
+      ]
+    }
+  ],
+  "bibliography": [
+    {
+      "id": "1",
+      "type": "misc",
+      "authors": [],
+      "title": "",
+      "venue": "",
+      "year": "",
+      "raw": "[1] Alice Zhang, Bob Li. AutoTeX System Overview. Journal of Automation, 2024."
+    },
+    {
+      "id": "2",
+      "type": "misc",
+      "authors": [],
+      "title": "",
+      "venue": "",
+      "year": "",
+      "raw": "[2] Carol Chen. Structured Document Understanding. Conference on AI Systems, 2025."
+    }
+  ]
+}

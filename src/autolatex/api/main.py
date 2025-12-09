@@ -4,11 +4,12 @@ FastAPI 后端服务
 """
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
 import os
 import sys
+from urllib.parse import quote
 
 # 添加 src 目录到路径（从 api/main.py 向上两级到 src）
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
@@ -66,6 +67,8 @@ class PaperConvertResponse(BaseModel):
     success: bool
     message: str
     output_path: Optional[str] = None
+    pdf_filename: Optional[str] = None
+    pdf_url: Optional[str] = None
     error: Optional[str] = None
 
 # ==================== API 端点 ====================
@@ -167,11 +170,32 @@ async def convert_paper(request: PaperConvertRequest):
             output_path = result.output_path
         elif isinstance(result, dict) and 'output_path' in result:
             output_path = result['output_path']
+
+        # 查找最新生成的 PDF（存放于项目 output 目录）
+        output_dir = os.path.join(project_root, "output")
+        latest_pdf = None
+        if os.path.isdir(output_dir):
+            pdf_files = [
+                f for f in os.listdir(output_dir)
+                if f.lower().endswith(".pdf")
+            ]
+            if pdf_files:
+                pdf_files.sort(
+                    key=lambda fname: os.path.getmtime(os.path.join(output_dir, fname)),
+                    reverse=True,
+                )
+                latest_pdf = pdf_files[0]
+        
+        pdf_url = None
+        if latest_pdf:
+            pdf_url = f"/api/v1/paper/download?filename={quote(latest_pdf)}"
         
         return PaperConvertResponse(
             success=True,
             message="论文转换成功",
-            output_path=output_path or "output/draft.tex"
+            output_path=output_path or "output/draft.tex",
+            pdf_filename=latest_pdf,
+            pdf_url=pdf_url,
         )
     except Exception as e:
         return PaperConvertResponse(
@@ -206,6 +230,30 @@ async def upload_paper(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"文件上传失败: {str(e)}")
+
+@app.get("/api/v1/paper/download")
+async def download_pdf(filename: str):
+    """
+    下载生成的 PDF 文件（仅允许 output 目录下的 .pdf）
+    """
+    if not filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="仅支持下载 PDF 文件")
+    
+    output_dir = os.path.join(project_root, "output")
+    target_path = os.path.abspath(os.path.join(output_dir, filename))
+    
+    # 路径安全校验，防止目录穿越
+    if not target_path.startswith(os.path.abspath(output_dir)):
+        raise HTTPException(status_code=400, detail="非法的文件路径")
+    
+    if not os.path.exists(target_path):
+        raise HTTPException(status_code=404, detail="文件不存在")
+    
+    return FileResponse(
+        target_path,
+        media_type="application/pdf",
+        filename=filename
+    )
 
 if __name__ == "__main__":
     import uvicorn
