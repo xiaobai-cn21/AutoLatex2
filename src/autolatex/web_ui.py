@@ -521,6 +521,31 @@ button.delete-button:hover {
     background: #f9fafb;
     color: #8b5cf6;
 }
+
+/* 处理结果输出框可拖拽缩放样式 */
+.resizable-output {
+    position: relative;
+}
+
+.resizable-output textarea {
+    resize: both;
+    min-height: 42px;  /* 约等于单行高度，便于收缩到最小 */
+    max-height: 70vh;
+    min-width: 320px;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    font-family: "Fira Code", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.5;
+}
+
+.resizable-output textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
+}
 """
 
 # HTML 模板
@@ -1056,7 +1081,8 @@ def create_interface():
                 output = gr.Textbox(
                     label="处理结果",
                     visible=True,   # 默认显示，便于直接看到上传/转换结果
-                    interactive=False
+                    interactive=False,
+                    elem_classes=["resizable-output"]
                 )
                 
                 # 绑定事件
