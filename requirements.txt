@@ -1,14 +1,11 @@
-# requirements.txt
-
 crewai
 crewai-tools
 langchain-openai
 python-dotenv
 
-# --- 添加以下这些用于文档解析的依赖 ---
+# --- 文档解析依赖 ---
 Markdown
 python-docx
-# 如果您还用到了其他库，比如处理 txt 的，也一并添加
 
 # --- 模块四：记忆与交互层依赖 ---
 # 向量数据库
@@ -24,4 +21,13 @@ gradio>=4.0.0
 
 # HTTP 客户端
 requests>=2.31.0
-# 如果您还用到了其他库，比如处理 txt 的，也一并添加
+
+# --- Latex-OCR 训练相关依赖（C 同学） ---
+torch>=2.0.0
+transformers>=4.44.0
+accelerate>=0.33.0
+datasets>=2.20.0
+peft>=0.12.0
+Pillow>=10.0.0
+tqdm>=4.66.0
+modelscope>=1.15.0

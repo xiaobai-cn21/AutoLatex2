@@ -1,0 +1,5 @@
+{
+  "completed_epochs": 2,
+  "global_step": 624,
+  "last_checkpoint": "checkpoints/mixtex_lora_10k_final_tuned/epoch_2"
+}
