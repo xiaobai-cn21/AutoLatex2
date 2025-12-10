@@ -22,14 +22,25 @@ from autolatex.tools.latex_compiler import cleanup_temp_dir
 def run_compilation(latex_source: str, templates: Dict[str, str] | None = None) -> Dict[str, str]:
     """Invoke LaTeXCompilerTool and return parsed JSON output."""
     tool = LaTeXCompilerTool()
-    with tempfile.TemporaryDirectory(prefix="autotex_template_") as tmp_template_dir:
+    import os
+    current_dir = os.getcwd()
+    with tempfile.TemporaryDirectory(prefix="autotex_temp_", dir=current_dir) as tmp_template_dir:
         if templates:
             for filename, content in templates.items():
                 file_path = Path(tmp_template_dir) / filename
                 file_path.parent.mkdir(parents=True, exist_ok=True)
                 file_path.write_text(content, encoding="utf-8")
         output = tool._run(latex_source, os.path.abspath(tmp_template_dir))
-        return json.loads(output)
+        result = json.loads(output)
+        
+         # 【关键修改2】如果有错误，打印出来让我们看到
+        if "成功" not in result.get("message", ""):
+            print("\n" + "!"*50)
+            print("[DEBUG] Python 测试捕获到错误:")
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            print("!"*50 + "\n")
+
+        return result
 
 
 def assert_pdf_result(result: Dict[str, str]) -> None:

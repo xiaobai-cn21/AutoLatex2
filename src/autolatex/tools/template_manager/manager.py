@@ -24,9 +24,12 @@ def get_journal_template_files(journal_name: str, base_path: Optional[str] = Non
         FileNotFoundError: 如果模板目录不存在
     """
     if base_path is None:
-        # 默认路径：src/autolatex/templates/journals/{journal_name}
+        # 默认路径：项目根目录/模板/{journal_name}
+        # 通过 __file__ 动态计算项目根目录
+        # __file__ 位于: src/autolatex/tools/template_manager/manager.py
+        # 向上5级到达项目根目录
         project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
-        template_dir = project_root / "src" / "autolatex" / "templates" / "journals" / journal_name
+        template_dir = project_root / "模板" / journal_name
     else:
         template_dir = Path(base_path) / journal_name
     
@@ -66,9 +69,12 @@ def get_journal_template_dir(journal_name: str, base_path: Optional[str] = None)
         FileNotFoundError: 如果模板目录不存在
     """
     if base_path is None:
-        # 默认路径：src/autolatex/templates/journals/{journal_name}
+        # 默认路径：项目根目录/模板/{journal_name}
+        # 通过 __file__ 动态计算项目根目录
+        # __file__ 位于: src/autolatex/tools/template_manager/manager.py
+        # 向上5级到达项目根目录
         project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
-        template_dir = project_root / "src" / "autolatex" / "templates" / "journals" / journal_name
+        template_dir = project_root / "模板" / journal_name
     else:
         template_dir = Path(base_path) / journal_name
     
@@ -91,8 +97,12 @@ def list_available_journals(base_path: Optional[str] = None) -> List[str]:
         期刊名称列表
     """
     if base_path is None:
+        # 默认路径：项目根目录/模板/
+        # 通过 __file__ 动态计算项目根目录
+        # __file__ 位于: src/autolatex/tools/template_manager/manager.py
+        # 向上5级到达项目根目录
         project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
-        journals_dir = project_root / "src" / "autolatex" / "templates" / "journals"
+        journals_dir = project_root / "模板"
     else:
         journals_dir = Path(base_path)
     

@@ -18,11 +18,11 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': '自动将word、txt、markdown格式论文转化为Latex格式论文',
-        'current_year': str(datetime.now().year),
-        'file_path': r'test_data\docx_samples\sample_paper_full.docx',
-        'journal_name':'CVPR',
-        
+        "topic": "自动将word、txt、markdown格式论文转化为Latex格式论文",
+        "current_year": str(datetime.now().year),
+        # 使用仓库内已存在的样例文档（绝对路径可自行替换）
+        "file_path": r"data\uploads\sample_paper_full.docx",
+        "journal_name": "IEEE_Access_LaTeX_template",
     }
 
     try:
@@ -95,3 +95,6 @@ def run_with_trigger():
         return result
     except Exception as e:
         raise Exception(f"An error occurred while running the crew with trigger: {e}")
+
+if __name__ == "__main__":
+    run()

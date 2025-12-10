@@ -16,8 +16,8 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
-# Gradio Web UI
-gradio>=4.0.0
+# Gradio Web UI（锁定到与你当前环境一致的版本）
+gradio==5.49.1
 
 # HTTP 客户端
 requests>=2.31.0

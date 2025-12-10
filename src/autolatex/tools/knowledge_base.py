@@ -39,13 +39,60 @@ LATEX_TEMPLATE_KNOWLEDGE = [
         }
     },
     {
-        "journal": "IEEE",
-        "document": "IEEE 期刊和会议模板。使用 \\documentclass[journal]{IEEEtran} 或 \\documentclass[conference]{IEEEtran}。必须包含的宏包：graphicx, amsmath, amssymb, cite, url。IEEE 格式要求严格，包括特定的标题格式、作者信息和参考文献样式。",
+        "journal": "IEEE Access",
+        "document": """
+IEEE Access 必须使用特定的文档类和宏包配置。请严格遵守以下骨架代码：
+
+\\documentclass{ieeeaccess}
+\\usepackage{cite}
+\\usepackage{amsmath,amssymb,amsfonts}
+\\usepackage{algorithmic}
+\\usepackage{graphicx}
+\\usepackage{textcomp}
+\\def\\BibTeX{{\\rm B\\kern-.05em{\\sc i\\kern-.025em b}\\kern-.08em
+    T\\kern-.1667em\\lower.7ex\\hbox{E}\\kern-.125emX}}
+
+\\begin{document}
+% 必须包含历史日期和DOI
+\\history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
+\\doi{10.1109/ACCESS.2017.DOI}
+
+\\title{你的论文标题}
+
+% 注意 IEEE Access 的特殊作者写法
+\\author{\\uppercase{First A. Author}\\authorrefmark{1}, \\IEEEmembership{Fellow, IEEE},
+\\uppercase{Second B. Author\\authorrefmark{2}, and Third C. Author,
+Jr}.\\authorrefmark{3},
+\\IEEEmembership{Member, IEEE}}
+
+\\address[1]{National Institute of Standards and Technology, Boulder, CO 80305 USA}
+\\address[2]{Department of Physics, Colorado State University, Fort Collins, CO 80523 USA}
+\\address[3]{Electrical Engineering Department, University of Colorado, Boulder, CO 80309 USA}
+
+% 必须包含通讯作者
+\\corresp{Corresponding author: First A. Author (e-mail: author@boulder.nist.gov).}
+
+\\begin{abstract}
+摘要内容...
+\\end{abstract}
+
+\\begin{keywords}
+关键词1, 关键词2...
+\\end{keywords}
+
+\\titlepgskip=-15pt
+\\maketitle
+
+\\section{Introduction}
+...
+\\end{document}
+""",
         "metadata": {
-            "journal_name": "IEEE",
-            "template_type": "journal/conference",
-            "documentclass": "IEEEtran",
-            "key_packages": "graphicx, amsmath, amssymb, cite, url"
+            "journal_name": "IEEE Access",
+            "template_type": "journal",
+            "documentclass": "ieeeaccess",
+            "key_packages": "ieeeaccess, cite, amsmath, amssymb, amsfonts, algorithmic, graphicx, textcomp",
+            "template_dir_path": "IEEE_Access_LaTeX_template"
         }
     },
     {

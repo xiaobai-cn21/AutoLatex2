@@ -19,25 +19,48 @@ from autolatex.tools.document_tools import DocumentParserTool
 from autolatex.tools.schema_validator import load_document_schema, validate_parsed_document
 
 BASE_DIR = os.path.dirname(__file__)
-DOCX_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "docx_samples"))
-MD_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "md_samples"))
-TXT_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "test_data", "txt_samples"))
-IMAGES_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../..", "parsed_images"))
+DOCX_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../test_data", "docx_samples"))
+MD_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../test_data", "md_samples"))
+TXT_TEST_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../test_data", "txt_samples"))
+IMAGES_DIR = os.path.normpath(os.path.join(BASE_DIR, "../../parsed_images"))
 
 
 def run_file_test(file_path: str) -> bool:
     parser_tool = DocumentParserTool()
     try:
-        json_output_str = parser_tool._run(file_path)
-        parsed_dict = json.loads(json_output_str)
+        # _run returns a JSON string with status and path to the saved file
+        response_str = parser_tool._run(file_path)
+        
+        # Check for error strings that aren't JSON
+        if response_str.startswith("Error:"):
+            print(f"--- Parsing Failed: {response_str} ---")
+            return False
+
+        response = json.loads(response_str)
+        
+        if response.get("status") != "success":
+            print(f"--- Parsing Failed: {response.get('message')} ---")
+            return False
+
+        saved_json_path = response.get("saved_json_path")
+        if not saved_json_path or not os.path.exists(saved_json_path):
+            print(f"--- Parsing Failed: Output file not found at {saved_json_path} ---")
+            return False
+
+        # Read the actual parsed content
+        with open(saved_json_path, "r", encoding="utf-8") as f:
+            parsed_dict = json.load(f)
+
+        print(f"--- Parsed output verified at: {saved_json_path} ---")
 
         schema = load_document_schema()
         is_valid = validate_parsed_document(parsed_dict, schema)
-        preview = json.dumps(parsed_dict, indent=2, ensure_ascii=False)
-        if len(preview) > 1500:
-            preview = preview[:1500] + "..."
-        print("--- Parsing Successful ---")
-        print(preview)
+        
+        if is_valid:
+            print("--- Schema Validation: PASSED ---")
+        else:
+            print("--- Schema Validation: FAILED ---")
+            
         return is_valid
     except (FileNotFoundError, ValueError) as exc:
         print(f"--- Parsing Failed: {exc} ---")
@@ -53,6 +76,8 @@ def run_docx_tests() -> Dict[str, bool]:
         "sample_paper_full.docx",
         "sample_paper_min.docx",
         "sample_paper_no_bib.docx",
+        "test_improvement.docx",
+        "complex_test.docx"
     ]
     for case in docx_cases:
         file_path = os.path.join(DOCX_TEST_DIR, case)
@@ -67,7 +92,10 @@ def run_docx_tests() -> Dict[str, bool]:
 
 def run_md_tests() -> Dict[str, bool]:
     results: Dict[str, bool] = {}
-    md_cases = ["sample_paper_with_frontmatter.md"]
+    md_cases = [
+        "sample_paper_with_frontmatter.md",
+        "test_advanced.md"
+    ]
     for case in md_cases:
         file_path = os.path.join(MD_TEST_DIR, case)
         print(f"\n--- Running MD test for: {case} ---")
@@ -81,7 +109,11 @@ def run_md_tests() -> Dict[str, bool]:
 
 def run_txt_tests() -> Dict[str, bool]:
     results: Dict[str, bool] = {}
-    txt_cases = ["sample_paper_full.txt", "sample_paper_min.txt"]
+    txt_cases = [
+        "sample_paper_full.txt",
+        "sample_paper_min.txt",
+        "test_advanced.txt"
+    ]
     for case in txt_cases:
         file_path = os.path.join(TXT_TEST_DIR, case)
         print(f"\n--- Running TXT test for: {case} ---")
