@@ -1,6 +1,6 @@
 ## 启动
 ```powershell
-cd C:\Users\Ding\Desktop\NLP\AutoLatex
+cd "根目录"
 # 如需自定义端口/设备可加环境变量，否则用默认
 # $env:OCR_CHECKPOINT_DIR="checkpoints\mixtex_lora_10k_final_tuned\epoch_2"
 # $env:OCR_DEVICE="cuda"  # 或 cpu
