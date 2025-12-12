@@ -17,6 +17,7 @@ doc_parsing_task:
 # 对应流程图左上角：调用工具/生成LaTeX片段
 equation_recognition_task:
   description: >
+    由于目前没有安置识别公式的OCR工具，因此可以暂时跳过这一步
     分析位于 {file_path} 的文档。
     识别文档中所有复杂的视觉元素，特别是行内或块级的数学公式，以及作为图片存在的表格。
     调用指定的 OCR 工具（DeepSeek-OCR），将这些视觉元素精准转换为标准的 LaTeX 代码片段。
@@ -43,32 +44,85 @@ template_retrieval_task:
 latex_generation_task:
   description: >
     扮演核心协调员的角色。汇总以下来源的所有信息：
-    1. 文档解析器提供的结构化文本内容（来自 context），包含了文章的标题、作者、章节正文。注意，这里的公式块可能只有图片路径。
+    1. 文档解析器提供的结构化文本内容（来自 context），包含了文章的标题、作者、章节正文以及文献参考资料引用。注意，这里的公式块可能只有图片路径。
     2. equation_recognition_task 提供的 OCR 公式片段。
     3. template_retrieval_task 提供的模板格式规则。
 
     将这些信息合并为一个完整、逻辑连贯且语法正确的 .tex 源文件。
     具体要求：
+    - 对于图片处理，当遇到 `{"type": "image", "path": "...", "caption": "..."}` 节点时：
+    提取 `path` 字段的值（例如 `E:\...\img.png`），**路径格式修正**：将路径中的反斜杠 `\` 替换为正斜杠 `/` (例如 `E:/.../img.png`)，否则 LaTeX 编译会报错。生成标准的 figure 环境代码。
     - 将文本中的公式占位符替换为 OCR 识别出的 LaTeX 代码。
     - 严格应用目标期刊的模板结构（如 \section, \author, \abstract）。
     - 确保所有的宏包引用完整，且图片路径正确。
+
+    ⚠️ **致命规则 (CRITICAL RULES):**
+    1. **严禁**在最终回复 (Final Answer) 中输出任何 LaTeX 代码！因为这会导致 Token 溢出。
+    2. 你必须通过 **调用工具 (`SectionWriterTool`)** 将代码直接写入硬盘。
+    3. **必须分章节写入**，不要试图把所有内容写在一个文件里。
+    4. 必须生成与json中参考文献相匹配的.bib文件
+    
+    **执行流程:**
+    1. **读取数据**: 使用 `FileReadTool` 读取上一步生成的 JSON。
+    2. **写入主文件**: 生成 `main.tex` (包含 \documentclass, \usepackage 等)，调用工具写入 `output/temp_source/main.tex`。
+    3. **循环写入章节**:
+       - 提取摘要 -> 生成 LaTeX -> 调用工具写入 `output/temp_source/sec/abstract.tex`。
+       - 提取引言 -> 生成 LaTeX -> 调用工具写入 `output/temp_source/sec/intro.tex`。
+       - ... (对每个章节重复此步骤)
+    4. **写入参考文献**: 生成 bib 内容 -> 调用工具写入 `output/temp_source/main.bib`。
+
+    ⚠️ **针对长章节的特殊处理规则 (CRITICAL FOR LONG SECTIONS):**
+    对于像 "Experiments" 或 "Methodology" 这样内容很长的章节，**严禁**试图一次性写入一个文件（例如 `sec/experiments.tex`），因为这会导致截断循环。
+    
+    **你必须采取“子文件拆分策略”：**
+    1. 不要创建巨大的 `sec/experiments.tex`。
+    2. 而是将其拆分为多个小文件，例如：
+       - `sec/exp_setup.tex` (实验设置)
+       - `sec/exp_tables.tex` (表格数据)
+       - `sec/exp_results.tex` (结果分析)
+       - `sec/exp_ablation.tex` (消融实验)
+    3. 然后，创建一个主索引文件 `sec/experiments.tex`，在里面只写：
+       ```latex
+       \section[[Experiments]]      在文件中应该使用大括号！！！
+       \input[[sec/exp_setup]]      
+       \input[[sec/exp_tables]]     
+       \input[[sec/exp_results]]    
+       ```
+    4. 对所有长章节都采用这种 `\input` 嵌套的方式。
+    
+    只有当所有文件都安全写入硬盘后，你才只需回复一句："所有章节已写入完成"。
   expected_output: >
-    一段完整、可直接用于编译的 .tex 源代码字符串。
-    代码必须包含标准的 LaTeX 文档开始和结束标记。
+    一份简短的执行清单。例如："已写入 main.tex, sec/abstract.tex, sec/intro.tex..."。
   agent: latex_coder_agent
 
 # 任务4：调试专家的任务 - 编译与闭环修复
 compilation_debugging_task:
   description: >
-    获取上一步生成的 .tex 代码，并调用 Docker 沙盒工具进行编译。
-    执行以下“编译-调试”循环：
-    1. 尝试编译 .tex 文件。
-    2. ⚠️ 重要：调用工具时，必须将 **{journal_name}** 赋值给工具的 template_dir_path 参数。
-    3. 如果编译成功：记录 PDF 文件路径，任务结束。
-    4. 如果编译失败：读取编译错误日志（log），分析具体错误原因（如“宏包缺失”、“未定义的命令”、“语法错误”）,根据错误信息，智能修改 .tex 源代码以修复问题。
-    5. 再次尝试编译，直到成功或达到最大重试次数。
+    你是 LaTeX 编译与调试专家。
+    **现状确认**：所有的 .tex 源代码（包含 main.tex 和 sec/ 文件夹）**已经**由上一个 Agent 写入到了本地磁盘 `output/temp_source` 中。
+    
+    **⚠️ 严格指令 (CRITICAL INSTRUCTIONS):**
+    1. **禁止传参**：调用 `LaTeXCompilerTool` 时，**latex_content 参数必须留空 (None)**！工具会自动从硬盘读取。
+    2. **禁止输出**：在最终回复中，**严禁**输出完整的 .tex 源代码，只输出状态报告。
+    
+    **执行步骤：**
+    1. **初次编译**：
+       - 调用 `LaTeXCompilerTool`。
+       - 必须将 **{journal_name}** (例如 "IEEE_Access_LaTeX_template") 赋值给 `template_dir_path` 参数。
+    
+    2. **循环调试 (如果编译失败)**：
+       - **分析日志**：阅读工具返回的 Error Logs。
+       - **定位文件**：如果错误发生在某个文件（如 `sec/intro.tex`），使用 `FileReadTool` 读取该**特定文件**的内容（不要读所有文件）。
+       - **执行修复**：根据错误原因（如宏包冲突、符号错误），生成修正后的代码片段。
+       - **写入硬盘**：立即调用 `SectionWriterTool`，将修正后的内容**覆盖写入**对应的文件。
+       - **重试编译**：再次调用 `LaTeXCompilerTool`。
+       
+    3. **结束任务**：直到编译成功生成 PDF，或达到最大重试次数。
+
   expected_output: >
-    最终的状态报告。
-    如果成功，应包含“编译成功”的标记、经过修正的最终版 .tex 代码以及生成的 PDF 文件路径。
-    如果失败，应包含详细的错误原因分析。
+    一份简短的编译报告。包含：
+    1. **编译状态**：(成功/失败)
+    2. **PDF 路径**：(例如 E:\...\output\result_xxx.pdf)
+    3. **修复记录**：(如果有修复，简述修改了哪个文件和原因，例如 "修复了 sec/abstract.tex 中的未闭合花括号")
+    **不要包含源代码。**
   agent: latex_debugger_agent

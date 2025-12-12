@@ -91,6 +91,10 @@ class DocumentStructure(BaseModel):
     summary: str = Field(description="论文内容的简要概述")
     bibliography: List[BibEntry] = Field(..., description="参考文献列表")
 
+
+class ParsedResultPath(BaseModel):
+    file_path: str = Field(..., description="解析后的完整数据（Metadata+Content）所在的JSON文件绝对路径")
+
 # ==========================================
 # 5. 辅助对象 (对应 Task 1 输出)
 # ==========================================
@@ -103,3 +107,4 @@ class LatexSnippet(BaseModel):
 
 class EquationList(BaseModel):
     snippets: List[LatexSnippet] = Field(..., description="所有识别出的公式列表")
+

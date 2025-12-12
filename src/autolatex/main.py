@@ -21,7 +21,7 @@ def run():
         "topic": "自动将word、txt、markdown格式论文转化为Latex格式论文",
         "current_year": str(datetime.now().year),
         # 使用仓库内已存在的样例文档（绝对路径可自行替换）
-        "file_path": r"data\uploads\sample_paper_full.docx",
+        "file_path":  r'data\uploads\英文版稿子（红字方便对应找参考文献）(2).docx',
         "journal_name": "IEEE_Access_LaTeX_template",
     }
 

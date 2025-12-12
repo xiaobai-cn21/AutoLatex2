@@ -1,13 +1,15 @@
+from autolatex.tools.tex_files_creator.file_toos import SectionWriterTool
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
-from .model import DocumentStructure, EquationList 
+from .model import DocumentStructure, EquationList,ParsedResultPath
 from autolatex.tools.document_tools import DocumentParserTool
 from autolatex.tools.latex_tools import LaTeXCompilerTool
 from autolatex.tools.ocr_tool import DeepSeekOCRTool
 from autolatex.tools.knowledge_tools import KnowledgeBaseSearchTool
 from crewai import LLM
+from crewai_tools import FileReadTool 
 
 @CrewBase
 class Autolatex():
@@ -54,6 +56,10 @@ class Autolatex():
         return Agent(
             config=self.agents_config['latex_coder_agent'],
             verbose=True,
+            llm = LLM(
+                model = "openai/deepseek-chat",
+                temperature = 0.3
+            ),
             # 这个 Agent 主要靠 LLM 生成代码，可能不需要外部工具，但为了写入文件可能需要 FileWriteTool
             allow_delegation=False
         )
@@ -90,7 +96,8 @@ class Autolatex():
             config=self.tasks_config['doc_parsing_task'],
             # 2. 这里使用完整的大结构
             # Agent 会生成一个包含 Metadata, Content(列表), Bibliography 的大JSON
-            output_pydantic=DocumentStructure 
+            # output_pydantic=DocumentStructure 
+            output_pydantic = ParsedResultPath
         )
 
     @task
@@ -126,7 +133,10 @@ class Autolatex():
                 self.equation_recognition_task(), 
                 self.template_retrieval_task()
             ],
-            output_file='output/draft.tex'
+            tools=[SectionWriterTool(), FileReadTool()], 
+            # 我们只需要它返回一个简单的字符串报告，比如 "所有文件写入完毕"
+            # 真正的代码都通过工具写进硬盘了
+            output_file='output/generation_log.md' 
         )
 
     @task
@@ -135,6 +145,7 @@ class Autolatex():
             config=self.tasks_config['compilation_debugging_task'],
             # 调试任务基于生成任务的结果
             context=[self.latex_generation_task()],
+            tools=[SectionWriterTool(), FileReadTool(),LaTeXCompilerTool()], 
             # 最终产出报告和修正后的文件
             output_file='output/final_report.md'
         )
