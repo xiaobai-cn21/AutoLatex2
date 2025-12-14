@@ -136,7 +136,7 @@ Anonymous Author(s)
     "template_type": "conference",
     "documentclass": "article",
     "key_packages": "cvpr, hyperref, xcolor, natbib",
-    "template_dir_path": "cvpr"
+    "template_dir_path": "模板/cvpr"
   },
   "requirements": """
 1. 必须严格使用 CVPR 官方 LaTeX 模板，不得修改 \\documentclass、cvpr.sty 或会议相关宏定义。
