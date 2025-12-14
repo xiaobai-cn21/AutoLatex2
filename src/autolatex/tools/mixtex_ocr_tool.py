@@ -36,7 +36,7 @@ class MixTexOCRTool(BaseTool):
     """
     调用已启动的 MixTex OCR FastAPI 服务，将图片转换为 LaTeX 代码。
     默认请求地址可通过环境变量 `MIXTEX_OCR_API_URL` 配置，未设置时使用
-    `http://localhost:8000/predict`。
+    `http://localhost:8001/predict`。
     """
 
     name: str = "MixTex OCR Tool"
@@ -46,7 +46,7 @@ class MixTexOCRTool(BaseTool):
     )
     args_schema: Type[BaseModel] = MixTexOCRToolInput
     api_url: str = Field(
-        default="http://localhost:8000/predict",
+        default="http://localhost:8001/predict",
         description="OCR API 服务地址"
     )
 
@@ -55,7 +55,7 @@ class MixTexOCRTool(BaseTool):
         final_api_url = (
             api_url
             or os.getenv("MIXTEX_OCR_API_URL")
-            or "http://localhost:8000/predict"
+            or "http://localhost:8001/predict"
         )
         super().__init__(api_url=final_api_url, **kwargs)
 

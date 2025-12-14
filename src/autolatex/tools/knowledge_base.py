@@ -56,6 +56,7 @@ Jr}.\\authorrefmark{3},
 
 \\section{Introduction}
 ...
+\\EOD
 \\end{document}
 """,
         "metadata": {
@@ -63,8 +64,15 @@ Jr}.\\authorrefmark{3},
             "template_type": "journal",
             "documentclass": "ieeeaccess",
             "key_packages": "ieeeaccess, cite, amsmath, amssymb, amsfonts, algorithmic, graphicx, textcomp",
-            "template_dir_path": "IEEE_Access_LaTeX_template"
-        }
+            "template_dir_path": "模板\\IEEE_Access_LaTeX_template"
+        },
+        "requirements":"""
+        1. 使用所给模板完成论文编写
+        2. 图片插入需要严格按照这种格式
+        \\Figure[t!](topskip=0pt, botskip=0pt, midskip=0pt){图片}
+{图片描述}}
+        3. 引用参考文档应使用\\cite{}而不是\\citep{}
+        """
     },
     {
         "journal": "CVPR 2026",

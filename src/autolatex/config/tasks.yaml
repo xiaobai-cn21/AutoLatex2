@@ -17,14 +17,11 @@ doc_parsing_task:
 # 对应流程图左上角：调用工具/生成LaTeX片段
 equation_recognition_task:
   description: >
-    由于目前没有安置识别公式的OCR工具，因此可以暂时跳过这一步
-    分析位于 {file_path} 的文档。
-    识别文档中所有复杂的视觉元素，特别是行内或块级的数学公式，以及作为图片存在的表格。
-    调用指定的 OCR 工具（DeepSeek-OCR），将这些视觉元素精准转换为标准的 LaTeX 代码片段。
-    务必记录下每个 LaTeX 片段在原文中的上下文位置，以便后续能够准确还原。
+    分析位于 {formula_position} 的公式图片。
+    识别图片中所有复杂的视觉元素，特别是行内或块级的数学公式，以及作为图片存在的表格。
+    调用指定的 OCR 工具，将这些视觉元素精准转换为标准的 LaTeX 代码片段。
   expected_output: >
-    一个结构化的 JSON 数据（或列表），包含所有识别出的公式和表格的 LaTeX 代码片段，
-    并按其在原文档中的出现顺序或 ID 进行了索引。
+    输出为data\uploads\equation下相对应公式的json文档，文档名称为公式图片名称，包含所有识别出的公式和表格的 LaTeX 代码片段，
   agent: latex_equation_form_agent
 
 # 任务2：模板专家的任务 - 找模板
@@ -52,7 +49,7 @@ latex_generation_task:
     具体要求：
     - 对于图片处理，当遇到 `{"type": "image", "path": "...", "caption": "..."}` 节点时：
     提取 `path` 字段的值（例如 `E:\...\img.png`），**路径格式修正**：将路径中的反斜杠 `\` 替换为正斜杠 `/` (例如 `E:/.../img.png`)，否则 LaTeX 编译会报错。生成标准的 figure 环境代码。
-    - 将文本中的公式占位符替换为 OCR 识别出的 LaTeX 代码。
+    - 对于公式的处理，当遇到`\formula{}`时在{data\uploads\equation}下找到对应名字的json文件，将其中的关于公式的Latex代码插入论文的相应位置。
     - 严格应用目标期刊的模板结构（如 \section, \author, \abstract）。
     - 确保所有的宏包引用完整，且图片路径正确。
 
@@ -61,7 +58,14 @@ latex_generation_task:
     2. 你必须通过 **调用工具 (`SectionWriterTool`)** 将代码直接写入硬盘。
     3. **必须分章节写入**，不要试图把所有内容写在一个文件里。
     4. 必须生成与json中参考文献相匹配的.bib文件
-    
+    5. 在生成 main.tex 时，\bibliography{...} 命令中只能填写文件名（例如 main），严禁包含文件夹路径（如 output/temp_source/main），因为编译时main.tex与main.bib都在同一目录下。
+    6. 生成的main.bib中的文献引用变量名应与.tex中的对应
+    7. 若论文模板为双栏格式且有超过五列的表格，那么表格应两列都占，即
+    \\begin{table*}[htbp]  % 注意这里的星号*
+      表格
+    \\end{table*}
+    8. 若公式太长，应使用split将其分为两行
+
     **执行流程:**
     1. **读取数据**: 使用 `FileReadTool` 读取上一步生成的 JSON。
     2. **写入主文件**: 生成 `main.tex` (包含 \documentclass, \usepackage 等)，调用工具写入 `output/temp_source/main.tex`。
