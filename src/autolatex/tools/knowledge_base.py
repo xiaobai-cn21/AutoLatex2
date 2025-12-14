@@ -66,103 +66,125 @@ Jr}.\\authorrefmark{3},
             "template_dir_path": "IEEE_Access_LaTeX_template"
         }
     },
-    {
-        "journal": "CVPR 2026",
-        "document": """
-% CVPR 2026 Paper Template; see https://github.com/cvpr-org/author-kit
+{
+  "journal": "cvpr",
+  "document": """
+CVPR 论文必须严格使用官方 LaTeX 模板完成，不得自行修改文档类或会议宏定义。请严格遵守以下骨架代码：
 
 \\documentclass[10pt,twocolumn,letterpaper]{article}
 
 %%%%%%%%% PAPER TYPE
 
-% \\usepackage{cvpr}              % Camera-ready
+% \\usepackage{cvpr}              % Camera-ready 版本（仅官方允许时使用）
+\\usepackage[review]{cvpr}        % Review / 投稿版本
+% \\usepackage[pagenumbers]{cvpr} % arXiv 版本（仅官方允许时使用）
 
-\\usepackage[review]{cvpr}        % Review version
+%%%%%%%%% ADDITIONAL PACKAGES
 
-% \\usepackage[pagenumbers]{cvpr} % Page numbers for arXiv
-
-% Additional packages (edit in preamble.tex)
-
+% 额外宏包必须在 preamble.tex 中统一管理
 \\input{preamble}
 
-% Hyperref
+%%%%%%%%% HYPERREF (必须启用)
 
 \\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
-
 \\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
 
-%%%%%%%%% PAPER METADATA
+%%%%%%%%% PAPER METADATA (必须填写)
 
 \\def\\paperID{*****}
-
 \\def\\confName{CVPR}
-
 \\def\\confYear{2026}
 
 %%%%%%%%% TITLE
 
-\\title{<TITLE>}
+\\title{你的论文标题}
 
 %%%%%%%%% AUTHORS
+% Review 阶段必须满足匿名投稿要求
 
 \\author{
-
-<AUTHOR 1 NAME> \\\\
-
-<INSTITUTION 1> \\\\
-
-{\\tt\\small <EMAIL 1>}
-
-\\and
-
-<AUTHOR 2 NAME> \\\\
-
-<INSTITUTION 2> \\\\
-
-{\\tt\\small <EMAIL 2>}
-
+Anonymous Author(s)
 }
 
 \\begin{document}
 
 \\maketitle
 
-%%%%%%%%% SECTION INPUTS
+%%%%%%%%% SECTION INPUTS (必须使用 \\input 方式组织)
 
 \\input{sec/0_abstract}
-
 \\input{sec/1_intro}
-
 \\input{sec/2_formatting}
-
 \\input{sec/3_finalcopy}
 
-%%%%%%%%% BIBLIOGRAPHY
+%%%%%%%%% BIBLIOGRAPHY (必须使用 BibTeX)
 
 {
-
-    \\small
-
-    \\bibliographystyle{ieeenat_fullname}
-
-    \\bibliography{main}
-
+  \\small
+  \\bibliographystyle{ieeenat_fullname}
+  \\bibliography{main}
 }
 
-%%%%%%%%% SUPPLEMENTARY (optional)
+%%%%%%%%% SUPPLEMENTARY (可选)
 
 % \\input{sec/X_suppl}
 
 \\end{document}
 """,
-        "metadata": {
-            "journal_name": "CVPR_2026",
-            "template_type": "conference",
-            "documentclass": "article",
-            "key_packages": "cvpr, hyperref, preamble, xcolor",
-            "template_dir_path": "CVPR_2026"
-        }
-    },
+  "metadata": {
+    "journal_name": "cvpr",
+    "template_type": "conference",
+    "documentclass": "article",
+    "key_packages": "cvpr, hyperref, xcolor, natbib",
+    "template_dir_path": "模板/cvpr"
+  },
+  "requirements": """
+1. 必须严格使用 CVPR 官方 LaTeX 模板，不得修改 \\documentclass、cvpr.sty 或会议相关宏定义。
+   - 文档类固定为：
+     \\documentclass[10pt,twocolumn,letterpaper]{article}
+   - Review 阶段必须使用：
+     \\usepackage[review]{cvpr}
+
+2. 论文结构必须通过 \\input{sec/...} 方式组织，禁止将正文直接写在主 tex 文件中。
+   - 至少包含以下文件：
+     - sec/0_abstract.tex
+     - sec/1_intro.tex
+     - sec/2_formatting.tex
+     - sec/3_finalcopy.tex
+
+3. 标题、作者和会议信息必须使用模板中提供的宏：
+   - \\title{...}
+   - \\author{...}
+   - \\def\\confName{CVPR}
+   - \\def\\confYear{2026}
+   - \\def\\paperID{*****}
+   Review 阶段作者信息必须匿名。
+
+4. 图片插入必须使用标准 figure 环境，并符合 CVPR 双栏排版规范：
+   \\begin{figure}[t]
+     \\centering
+     \\includegraphics[width=\\linewidth]{image}
+     \\caption{Image caption.}
+     \\label{fig:example}
+   \\end{figure}
+   禁止越界、压缩比例失真或随意跨栏（除非使用 figure*）。
+
+5. 参考文献必须使用 BibTeX，不得手写参考文献列表：
+   - \\bibliographystyle{ieeenat_fullname}
+   - \\bibliography{main}
+   文中引用需使用 \\cite{}, \\citet{}, \\citeauthor{} 等 natbib 兼容命令。
+
+6. 不得修改 cvpr.sty 或 preamble.tex 中的核心排版参数，
+   包括页边距、字体大小、行距、列间距等。
+
+7. 超链接必须通过 hyperref 宏包生成，并使用模板中定义的颜色：
+   \\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+   禁止自行修改链接颜色或关闭链接。
+
+8. 最终生成的 PDF 必须符合 CVPR 官方页数限制、匿名性要求以及提交规范。
+"""
+}
+,
     {
         "journal": "arvix",
         "document": """
