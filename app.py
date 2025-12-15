@@ -113,6 +113,7 @@ def generate_latex():
             "output_path": convert_data.get("output_path"),
             "pdf_url": convert_data.get("pdf_url"),
             "pdf_filename": convert_data.get("pdf_filename"),
+            "tex_zip_url": convert_data.get("tex_zip_url"),
             "image_count": len(uploaded_image_paths)
         }
         

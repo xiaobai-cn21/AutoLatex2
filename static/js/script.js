@@ -252,6 +252,10 @@ async function generateLatex() {
     updateImageGallery();
     
     downloadContainer.style.display = 'none'; // 隐藏下载链接
+    const downloadTexBtn = document.getElementById('download-tex-btn');
+    if (downloadTexBtn) {
+        downloadTexBtn.style.display = 'none'; // 隐藏 TeX 下载按钮
+    }
     
     try {
         // 创建 FormData 对象
@@ -309,6 +313,19 @@ async function generateLatex() {
                 downloadLink.href = pdfUrl;
                 downloadLink.download = pdfName;
                 downloadContainer.style.display = 'block';
+            }
+            
+            // 显示下载 TeX 文件按钮（如果有 tex_zip_url）
+            const downloadTexBtn = document.getElementById('download-tex-btn');
+            const downloadTexLink = document.getElementById('download-tex-link');
+            if (result.tex_zip_url && downloadTexBtn && downloadTexLink) {
+                const texUrl = result.tex_zip_url.startsWith('http')
+                    ? result.tex_zip_url
+                    : `http://127.0.0.1:8000${result.tex_zip_url}`;
+                
+                downloadTexLink.href = texUrl;
+                downloadTexLink.download = 'latex_source.zip';
+                downloadTexBtn.style.display = 'inline-block';
             }
         } else {
             // 简化错误信息，移除技术细节

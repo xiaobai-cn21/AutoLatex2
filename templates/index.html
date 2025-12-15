@@ -153,10 +153,16 @@
 
             <!-- 下载按钮 -->
             <div id="download-link-container" style="margin-top: 20px; text-align: center; display: none;">
-                <button class="translate-button" id="download-pdf-btn" onclick="document.getElementById('download-link').click()" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
-                    ⬇️ 下载PDF
-                </button>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="translate-button" id="download-pdf-btn" onclick="document.getElementById('download-link').click()" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">
+                        ⬇️ 下载PDF
+                    </button>
+                    <button class="translate-button" id="download-tex-btn" onclick="document.getElementById('download-tex-link').click()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); display: none;">
+                        📦 下载TeX文件
+                    </button>
+                </div>
                 <a href="#" class="download-link" id="download-link" target="_blank" style="display: none;">⬇️ 下载PDF</a>
+                <a href="#" class="download-link" id="download-tex-link" target="_blank" style="display: none;">📦 下载TeX文件</a>
             </div>
         </div>
     </div>

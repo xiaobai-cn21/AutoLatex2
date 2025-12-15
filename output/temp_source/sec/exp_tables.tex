@@ -1,0 +1,78 @@
+\subsection{Tables}
+
+Our experimental results are presented through four comprehensive tables in this section: Table~\ref{tab:baseline} reports baseline performance of all six models across nine temporal reasoning subtasks; Table~\ref{tab:finetuned} demonstrates fine-tuning results for the five open-source models after comprehensive fine-tuning; Table~\ref{tab:ucm} records visual recognition capabilities on the UCM dataset to demonstrate that temporal reasoning challenges are not due to visual encoding deficiencies; Table~\ref{tab:crossdomain} details cross-dataset validation results on TemporalVQA, demonstrating the transferability of acquired temporal understanding capabilities.
+
+\begin{table*}[htbp]
+    \centering
+    \caption{Baseline Performance of Six Models}
+    \label{tab:baseline}
+    \begin{tabular}{lccccccccc}
+        \toprule
+        \multirow{2}{*}{Model} & \multicolumn{5}{c}{TOU} & \multicolumn{4}{c}{TIU} \\
+        \cmidrule(lr){2-6} \cmidrule(lr){7-10}
+        & TAL & ISR (PNR) & SOV & POV & TPL & ICE & PIC & IPR (PNR) & EII \\
+        \midrule
+        Intern-VL & 21.0\% & 1.0202 & 53.0\% & 45.5\% & 58.0\% & 20.0\% & 44.0\% & 0.8519 & 23.5\% \\
+        Mimo-VL & 75.5\% & 1.2497 & 57.5\% & 54.0\% & 61.0\% & 23.5\% & 55.5\% & 1.2472 & 21.0\% \\
+        MiniCPM & 75.5\% & 1.8409 & 60.5\% & 58.5\% & 58.5\% & 21.0\% & 44.5\% & 1.0906 & 30.0\% \\
+        Ovis & 85.0\% & 1.1299 & 53.0\% & 48.0\% & 53.5\% & 22.5\% & 56.5\% & 0.9608 & 27.5\% \\
+        Qwen3-VL & 66.5\% & 1.2989 & 66.0\% & 57.0\% & 56.0\% & 23.5\% & 56.5\% & 0.7804 & 23.5\% \\
+        GPT-4o mini & 78.5\% & 0.3093 & 57.5\% & 48.0\% & 61.0\% & 23.0\% & 46.0\% & 0.2500 & 25.0\% \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
+\begin{table*}[htbp]
+    \centering
+    \caption{Fine-tuned Model Performance}
+    \label{tab:finetuned}
+    \begin{tabular}{lccccccccc}
+        \toprule
+        \multirow{2}{*}{Model} & \multicolumn{5}{c}{TOU} & \multicolumn{4}{c}{TIU} \\
+        \cmidrule(lr){2-6} \cmidrule(lr){7-10}
+        & TAL & ISR (PNR) & SOV & POV & TPL & ICE & PIC & IPR (PNR) & EII \\
+        \midrule
+        Intern-VL & 77.0\% & 2.7523 & 79.5\% & 65.5\% & 79.0\% & 26.5\% & 54.0\% & 1.5105 & 30.5\% \\
+        Mimo-VL & 93.0\% & 3.9383 & 85.5\% & 76.0\% & 80.0\% & 31.5\% & 59.0\% & 1.8986 & 34.0\% \\
+        MiniCPM & 91.0\% & 3.1929 & 84.5\% & 74.0\% & 80.0\% & 28.0\% & 53.0\% & 1.4291 & 28.5\% \\
+        Ovis & 92.0\% & 4.3476 & 86.5\% & 77.0\% & 83.5\% & 30.0\% & 67.5\% & 2.1579 & 34.0\% \\
+        Qwen3-VL & 94.0\% & 4.2083 & 90.5\% & 78.5\% & 83.0\% & 29.0\% & 70.0\% & 1.2901 & 27.5\% \\
+        \bottomrule
+    \end{tabular}
+\end{table*}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Visual Recognition Capability Validation on UCM}
+    \label{tab:ucm}
+    \begin{tabular}{lc}
+        \toprule
+        Model & UCM Accuracy \\
+        \midrule
+        Intern-VL & 95.5\% \\
+        Mimo-VL & 95.5\% \\
+        MiniCPM & 93.0\% \\
+        Ovis & 94.0\% \\
+        Qwen3-VL & 91.5\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table*}[htbp]
+    \centering
+    \caption{Cross-Domain Experiments on TemporalVQA, ``Before'' represents baseline models, ``After'' represents models fine-tuned on TimePerceptBench.}
+    \label{tab:crossdomain}
+    \begin{tabular}{lcccccc}
+        \toprule
+        \multirow{2}{*}{Model} & \multicolumn{2}{c}{TOU} & \multicolumn{2}{c}{TIU} & \multicolumn{2}{c}{Overall Accuracy} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+        & Before & After & Before & After & Before & After \\
+        \midrule
+        Intern-VL & 50.00\% & 58.61\% & 25.60\% & 50.40\% & 46.39\% & 57.40\% \\
+        Mimo-VL & 55.97\% & 61.11\% & 40.00\% & 53.60\% & 53.61\% & 60.00\% \\
+        MiniCPM & 67.50\% & 67.50\% & 56.80\% & 60.00\% & 65.90\% & 66.39\% \\
+        Ovis & 60.42\% & 65.56\% & 61.60\% & 64.80\% & 60.59\% & 65.44\% \\
+        Qwen3-VL & 60.83\% & 60.83\% & 63.20\% & 58.40\% & 60.47\% & 60.47\% \\
+        \bottomrule
+    \end{tabular}
+\end{table*}

@@ -1,0 +1,37 @@
+\section{Introduction}
+
+Temporal understanding---the ability to comprehend temporal relationships, sequential patterns, and duration estimation---represents a fundamental cognitive capability that enables humans to navigate the complexities of time-dependent events and dynamic environments. As multimodal large language models (MLLMs) achieve remarkable success in static visual understanding tasks such as image captioning, visual question answering, and object recognition \citep{Liu23} \citep{Yin24} \citep{Li24}), their relatively weak temporal reasoning capabilities have gradually gained attention. This limitation becomes increasingly concerning as MLLMs are deployed in real-world applications requiring temporal perception.
+
+While research efforts such as TimeBench \citep{Chu23} and TRAM \citep{Wang23} have attempted to evaluate symbolic and commonsense temporal understanding in text domains, the multimodal domain faces unique challenges that text-based benchmarks cannot address. Unlike textual temporal reasoning, which relies on explicit linguistic temporal markers, visual temporal understanding requires models to process and correlate information across multiple images or video frames, extracting temporal relationships from non-explicit linguistic cues such as visual changes, motion patterns, or environmental transformations \citep{Chen21} \citep{Dhingra22}. While recent research such as TemporalVQA \citep{Imam25} has introduced basic temporal order understanding and time-lapse estimation tasks based on image pairs, these evaluations remain limited in scope and interval, typically addressing only short-term temporal relationships or simple sequential patterns.
+
+Current multimodal benchmarks face three critical limitations: lack of objective temporal ground truth (temporal annotations in general-domain content heavily depend on subjective judgment), absence of systematic multi-image sequence evaluation (most work focuses on single images or simple image pairs), and failure to distinguish different temporal reasoning capabilities (conflating temporal order understanding with temporal interval quantification). Remote sensing imagery emerges as an ideal solution: satellite acquisition protocols provide objective timestamps that enable reliable temporal evaluation across multiple intervals; compared to typical video frames, remote sensing images present inherently more complex visual content with rich geographic and environmental information that demands sophisticated spatial-temporal reasoning; moreover, while continuous video datasets are abundant, discrete temporal remote sensing datasets remain relatively scarce, making our contribution particularly valuable for advancing temporal understanding research in challenging real-world scenarios.
+
+To address these critical limitations and advance temporal understanding in multimodal large language models, we propose TimePerceptBench---a benchmark for evaluating temporal understanding capabilities in MLLMs using remote sensing image sequences. Unlike existing work that treats temporal reasoning as a monolithic capability, we explicitly distinguish two complementary yet fundamentally different capabilities:
+
+\begin{itemize}
+    \item \textbf{Temporal Order Understanding (TOU):} Evaluates models' ability to comprehend event sequences through 5 tasks (Pairwise Order Verification, Sequential Order Verification, Image Sequence Reordering, Temporal Position Localization, Temporal Anomaly Detection), assessed on over 1,000 multi-image groups spanning various temporal intervals;
+    \item \textbf{Temporal Interval Understanding (TIU):} Evaluates models' ability to quantify time intervals through 4 tasks (Extremum Interval Identification, Interval-based Pair Ranking, Pairwise Interval Comparison, Interval Range Estimation), covering multiple temporal categories from days to years.
+\end{itemize}
+
+This TOU/TIU separation framework enables us to systematically diagnose models' strengths and weaknesses across different dimensions of temporal reasoning, providing clear directions for targeted improvements.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{parsed_images/d8dee252-b190-4bf3-81c9-97beb0656886.png}
+    \caption{The performance of each model in TimePerceptBench.}
+    \label{fig:image1}
+\end{figure}
+
+We conduct comprehensive evaluation of 6 representative models, including GPT-4o mini \citep{Achiam23} and 5 state-of-the-art open-source models: InternVL3.5-8B-Instruct \citep{Wang25}, Ovis2.5-9B \citep{Lu25}, Qwen3-VL-8B-Instruct \citep{Yang25} \citep{Bai25}, MiniCPM-V-4.5 \citep{Yu25}, and MiMo-VL-7B-RL \citep{Yue25}. As illustrated in \cref{fig:image1}, the evaluation results reveal significant limitations in current temporal understanding capabilities:
+
+Unfine-tuned models show limited temporal reasoning: On complex Image Sequence Reordering tasks, models achieve Positive-Negative Ratio (PNR) of only around 1.0--1.8 (near random guessing), while TIU tasks perform near random baselines (interval estimation: 20--23.5\% vs 20\% random; extremum identification: 21--30\% vs 25\% random). Fine-tuning substantially improves TOU capabilities (PNR up to 4.35), but TIU remains fundamentally harder (post-tuning accuracy of only 25--70\%, compared to 70--95\% for TOU).
+
+Notably, this temporal understanding difficulty is not due to visual recognition deficits---models achieve 93.9\% accuracy on UCM land-use classification. Furthermore, cross-domain validation shows TIU transfers better than TOU (+8.0\% vs +3.94\%), suggesting that TIU, though harder to learn initially, gains more from remote sensing's temporal diversity, highlighting the unique value of remote sensing data for temporal understanding research.
+
+Our benchmark makes several key contributions:
+\begin{enumerate}
+    \item Comprehensive evaluation framework for MLLM temporal understanding using objective remote sensing timestamps, eliminating subjective annotation biases;
+    \item A systematic evaluation method that explicitly distinguishes TOU and TIU capabilities, through 9 complementary tasks (5 TOU + 4 TIU) covering multiple temporal intervals from days to years;
+    \item Revealing fundamental limitations in current temporal reasoning: TIU is more challenging than TOU, and this difficulty stems not from visual recognition deficits but reflects the inherent complexity of temporal quantification reasoning;
+    \item Deep insights into fine-tuning effects and cross-domain transfer: Fine-tuning significantly improves TOU but has limited impact on TIU, and TIU demonstrates better generalization in cross-domain scenarios, providing clear directions for future research.
+\end{enumerate}

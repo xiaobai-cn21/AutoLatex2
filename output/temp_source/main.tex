@@ -1,39 +1,39 @@
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
-% CVPR template
+% CVPR style package - review version for anonymous submission
 \usepackage[review]{cvpr}
-\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
-\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
-\input{preamble}
 
-% Metadata
+% Define conference metadata
 \def\paperID{*****}
 \def\confName{CVPR}
 \def\confYear{2026}
 
-\title{TimePerceptBench: Evaluating Temporal Understanding in Multimodal Large Language Models with Remote Sensing Imagery}
+% Additional packages (loaded via preamble for cleanliness)
+\input{preamble}
 
-\author{
-Ertai E\\
-{\tt\small }
-}
+% Hyperref setup with CVPR blue
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+% Title and author (anonymous for review)
+\title{TimePerceptBench: Evaluating Temporal Understanding in Multimodal Large Language Models with Remote Sensing Imagery}
+\author{Anonymous Author(s)}
 
 \begin{document}
 
 \maketitle
 
-\input{sec/abstract}
+% Abstract
+\input{sec/0_abstract}
 
-\input{sec/intro}
+% Main sections
+\input{sec/1_intro}
+\input{sec/2_related}
+\input{sec/3_tasks_datasets}
+\input{sec/4_experiments}
+\input{sec/5_conclusion}
 
-\input{sec/related_works}
-
-\input{sec/tasks_datasets}
-
-\input{sec/experiments}
-
-\input{sec/conclusion}
-
+% References
 {\small
 \bibliographystyle{ieeenat_fullname}
 \bibliography{main}

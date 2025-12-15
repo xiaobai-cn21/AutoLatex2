@@ -11,6 +11,8 @@ import os
 import sys
 import uuid
 import re
+import zipfile
+import shutil
 from urllib.parse import quote
 
 # 添加 src 目录到路径（从 api/main.py 向上两级到 src）
@@ -72,6 +74,7 @@ class PaperConvertResponse(BaseModel):
     output_path: Optional[str] = None
     pdf_filename: Optional[str] = None
     pdf_url: Optional[str] = None
+    tex_zip_url: Optional[str] = None
     error: Optional[str] = None
 
 # ==================== API 端点 ====================
@@ -217,12 +220,19 @@ async def convert_paper(request: PaperConvertRequest):
         if latest_pdf:
             pdf_url = f"/api/v1/paper/download?filename={quote(latest_pdf)}"
         
+        # 检查 temp_source 文件夹是否存在，如果存在则提供下载链接
+        temp_source_dir = os.path.join(project_root, "output", "temp_source")
+        tex_zip_url = None
+        if os.path.exists(temp_source_dir) and os.path.isdir(temp_source_dir):
+            tex_zip_url = "/api/v1/paper/download-tex"
+        
         return PaperConvertResponse(
             success=True,
             message="论文转换成功",
             output_path=output_path or "output/draft.tex",
             pdf_filename=latest_pdf,
             pdf_url=pdf_url,
+            tex_zip_url=tex_zip_url,
         )
     except HTTPException:
         # 重新抛出 HTTPException，让 FastAPI 处理
@@ -388,6 +398,43 @@ async def download_pdf(filename: str):
         media_type="application/pdf",
         filename=filename
     )
+
+@app.get("/api/v1/paper/download-tex")
+async def download_tex_zip():
+    """
+    下载 temp_source 文件夹中的所有 tex 文件（打包为 zip）
+    """
+    temp_source_dir = os.path.join(project_root, "output", "temp_source")
+    
+    if not os.path.exists(temp_source_dir):
+        raise HTTPException(status_code=404, detail="temp_source 文件夹不存在")
+    
+    # 创建临时 zip 文件
+    zip_filename = "latex_source.zip"
+    temp_zip_path = os.path.join(project_root, "output", zip_filename)
+    
+    try:
+        # 创建 zip 文件
+        with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # 遍历 temp_source 目录中的所有文件
+            for root, dirs, files in os.walk(temp_source_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    # 计算相对路径（相对于 temp_source 目录）
+                    arcname = os.path.relpath(file_path, temp_source_dir)
+                    zipf.write(file_path, arcname)
+        
+        return FileResponse(
+            temp_zip_path,
+            media_type="application/zip",
+            filename=zip_filename,
+            headers={"Content-Disposition": f"attachment; filename={zip_filename}"}
+        )
+    except Exception as e:
+        # 清理临时文件
+        if os.path.exists(temp_zip_path):
+            os.remove(temp_zip_path)
+        raise HTTPException(status_code=500, detail=f"创建 zip 文件失败: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
